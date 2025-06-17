@@ -4,5 +4,5 @@ namespace CatalogingSystem.Services.Interfaces;
 
 public interface IAuthService
 {
-    Task<string?> AuthenticateAsync(LoginRequestDto request);
+    Task<LoginResponseDto?> AuthenticateAsync(LoginRequestDto request);
 }

@@ -1,4 +1,3 @@
-
 using System.Security.Claims;
 using CatalogingSystem.Core.Entities;
 using CatalogingSystem.Core.Interfaces;
@@ -25,7 +24,7 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    public async Task<string?> AuthenticateAsync(LoginRequestDto request)
+    public async Task<LoginResponseDto?> AuthenticateAsync(LoginRequestDto request)
     {
         // Validar el contexto del tenant
         if (string.IsNullOrEmpty(_tenantService.TenantId))
@@ -55,9 +54,11 @@ public class AuthService : IAuthService
         }
 
         // Añadir el claim de PermissionLevel para Investigadores
+        string? permissionLevel = null;
         if (roles.Contains("Investigador") && user.PermissionLevel.HasValue)
         {
-            claims.Add(new Claim("PermissionLevel", user.PermissionLevel.Value.ToString()));
+            permissionLevel = user.PermissionLevel.Value.ToString();
+            claims.Add(new Claim("PermissionLevel", permissionLevel));
         }
 
         // Leer las variables de entorno directamente
@@ -80,10 +81,17 @@ public class AuthService : IAuthService
             issuer: jwtIssuer,
             audience: jwtAudience,
             claims: claims,
-            expires: DateTime.Now.AddHours(1),
+            expires: DateTime.Now.AddHours(4),
             signingCredentials: creds
         );
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+        // Devolver el DTO con el token y el nivel de permiso
+        return new LoginResponseDto
+        {
+            Token = tokenString,
+            PermissionLevel = permissionLevel
+        };
     }
 }
