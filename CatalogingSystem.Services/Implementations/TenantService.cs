@@ -82,10 +82,38 @@ public class TenantService : ITenantService
         return tenant;
     }
 
-    public async Task<List<Tenant>> GetAllTenantsAsync()
+   public async Task<PagedResultDto<TenantDto>> GetAllTenantsAsync(int page = 1, int size = 10)
     {
-        return await _baseDbContext.Tenants.ToListAsync();
+        if (page < 1) page = 1;
+        if (size < 1) size = 10;
+
+        var query = _baseDbContext.Tenants.AsNoTracking();
+
+        int totalItems = await query.CountAsync();
+
+        var tenants = await query
+            .OrderBy(t => t.Name)
+            .Skip((page - 1) * size)
+            .Take(size)
+            .Select(t => new TenantDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                ISIL = t.ISIL,
+                Description = t.Description
+            })
+            .ToListAsync();
+
+        return new PagedResultDto<TenantDto>
+        {
+            Items = tenants,
+            TotalItems = totalItems,
+            TotalPages = (int)Math.Ceiling(totalItems / (double)size),
+            CurrentPage = page,
+            PageSize = size
+        };
     }
+    
     private async Task CreateDefaultDirectorUserAsync(string tenantId, string tenantConnectionString)
     {
         using var scope = _serviceProvider.CreateScope();
