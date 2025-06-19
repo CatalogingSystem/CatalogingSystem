@@ -44,7 +44,8 @@ public class TenantService : ITenantService
             Name = request.Name,
             ISIL = request.ISIL,
             Description = request.Description,
-            ConnectionString = tenantConnectionString
+            ConnectionString = tenantConnectionString,
+            ImageUrl = request.ImageUrl
         };
 
         try
@@ -78,7 +79,6 @@ public class TenantService : ITenantService
         {
             throw new Exception($"Error al crear el tenant: {ex.Message}");
         }
-
         return tenant;
     }
 
@@ -100,7 +100,8 @@ public class TenantService : ITenantService
                 Id = t.Id,
                 Name = t.Name,
                 ISIL = t.ISIL,
-                Description = t.Description
+                Description = t.Description,
+                ImageUrl = t.ImageUrl
             })
             .ToListAsync();
 
