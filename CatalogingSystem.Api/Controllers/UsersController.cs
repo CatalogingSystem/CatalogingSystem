@@ -41,16 +41,20 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all users for the current tenant.
+    /// Gets all users for the current tenant with pagination.
     /// </summary>
-    /// <returns>A list of users.</returns>
+    /// <param name="page">The page number (default is 1).</param>
+    /// <param name="size">The number of items per page (default is 10).</param>
+    /// <returns>A paginated list of users.</returns>
     [HttpGet]
-    public async Task<IActionResult> GetUsers()
+    public async Task<IActionResult> GetUsers(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 10)
     {
         try
         {
-            var users = await _userService.GetUsersAsync();
-            return Ok(users);
+            var pagedUsers = await _userService.GetUsersAsync(page, size);
+            return Ok(pagedUsers);
         }
         catch (Exception ex)
         {

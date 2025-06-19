@@ -6,6 +6,7 @@ using CatalogingSystem.Services.Interfaces;
 using CatalogingSystem.DTOs;
 using Microsoft.EntityFrameworkCore;
 using CatalogingSystem.Core.Enums;
+using CatalogingSystem.DTOs.Dtos;
 
 namespace CatalogingSystem.Services.Implementations;
 
@@ -78,15 +79,24 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<List<UserDto>> GetUsersAsync()
+    public async Task<PagedResultDto<UserDto>> GetUsersAsync(int page = 1, int size = 10)
     {
         if (string.IsNullOrEmpty(_tenantService.TenantId))
         {
             throw new InvalidOperationException("No tenant context available.");
         }
+        if (page < 1)page = 1;
+        if (page < 1)page = 10;
 
-        var users = await _userManager.Users
-            .Where(u => u.TenantId == _tenantService.TenantId)
+        var query = _userManager.Users
+            .Where(u => u.TenantId == _tenantService.TenantId);
+
+        int totalItems = await query.CountAsync();
+
+        var users = await query
+            .OrderBy(u => u.UserName)
+            .Skip((page - 1) * size)
+            .Take(size)
             .ToListAsync();
 
         var userDtos = new List<UserDto>();
@@ -94,7 +104,7 @@ public class UserService : IUserService
         foreach (var user in users)
         {
             var roles = await _userManager.GetRolesAsync(user);
-            var role = roles.FirstOrDefault(); 
+            var role = roles.FirstOrDefault();
 
             userDtos.Add(new UserDto
             {
@@ -106,7 +116,14 @@ public class UserService : IUserService
             });
         }
 
-        return userDtos;
+        return new PagedResultDto<UserDto>
+        {
+            Items = userDtos,
+            TotalItems = totalItems,
+            TotalPages = (int)Math.Ceiling(totalItems / (double)size),
+            CurrentPage = page,
+            PageSize = size
+        };
     }
 
     public async Task<bool> UpdateUserAsync(string userId, UpdateUserRequestDto request)
