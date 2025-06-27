@@ -8,5 +8,6 @@ public class ArchivoAdministrativoProfile : Profile
     {
         CreateMap<ArchivoAdministrativoDto, ArchivoAdministrativo>();
         CreateMap<ArchivoAdministrativo, ArchivoAdministrativoDto>();
+        CreateMap<ArchivoAdministrativoUpdateDto, ArchivoAdministrativo>();
     }
 }

@@ -148,6 +148,7 @@ builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<SuperDirectorAuthService>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

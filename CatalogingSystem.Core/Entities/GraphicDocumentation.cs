@@ -15,5 +15,10 @@ public class GraphicDocumentation
     public required string technicalData { get; set; }
     public string? generalObservations { get; set; }
     public List<string>? imageUrls { get; set; }
-    public ArchivoAdministrativo ArchivoAdministrativo { get; set; }
+    public required ArchivoAdministrativo ArchivoAdministrativo { get; set; }
+    public bool IsModified { get; set; }
+    public bool IsCreated { get; set; }
+    public string? LastModifiedBy { get; set; }
+    public DateTime? LastModifiedAt { get; set; }
+    public List<HistorialEntry> HistorialEntries { get; set; } = new List<HistorialEntry>();
 }

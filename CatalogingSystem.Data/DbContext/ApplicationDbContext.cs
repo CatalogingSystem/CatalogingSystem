@@ -18,6 +18,8 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<ArchivoAdministrativo> ArchivosAdministrativos { get; set; }
     public DbSet<Identification> Identifications { get; set; }
     public DbSet<GraphicDocumentation> GraphicDocumentations { get; set; }
+    public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<HistorialEntry> HistorialEntries { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -103,5 +105,23 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
         modelBuilder.Entity<User>()
             .Property(u => u.TenantId)
             .IsRequired(false);
+
+        // Configuración de HistorialEntry
+        modelBuilder.Entity<HistorialEntry>()
+            .HasOne(h => h.AuditLog)
+            .WithMany()
+            .HasForeignKey(h => h.AuditLogId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Relaciones con HistorialEntries con DeleteBehavior.Cascade
+        modelBuilder.Entity<ArchivoAdministrativo>()
+            .HasMany(a => a.HistorialEntries)
+            .WithOne()
+            .OnDelete(DeleteBehavior.Cascade); // Eliminar HistorialEntries al eliminar ArchivoAdministrativo
+
+        modelBuilder.Entity<GraphicDocumentation>()
+            .HasMany(g => g.HistorialEntries)
+            .WithOne()
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

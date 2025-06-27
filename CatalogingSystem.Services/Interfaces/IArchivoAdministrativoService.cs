@@ -6,6 +6,6 @@ public interface IArchivoAdministrativoService
     Task<IEnumerable<ArchivoAdministrativoDto>> GetArchivosAdministrativos();
     Task<ArchivoAdministrativoDto?> GetArchivoAdministrativo(long expediente);
     Task<ArchivoAdministrativo> CreateArchivoAdministrativo(ArchivoAdministrativoDto dto);
-    Task<bool> UpdateArchivoAdministrativo(long expediente, ArchivoAdministrativoDto dto);
+    Task<bool> UpdateArchivoAdministrativo(long expediente, ArchivoAdministrativoUpdateDto dto);
     Task<bool> DeleteArchivoAdministrativo(long expediente);
 }

@@ -1,4 +1,6 @@
 namespace CatalogingSystem.Core.Entities;
+
+using System.ComponentModel.DataAnnotations;
 using CatalogingSystem.Core.Enums;
 
 public class ArchivoAdministrativo
@@ -17,4 +19,9 @@ public class ArchivoAdministrativo
     public string? historial { get; set; }
     public string? archivoDocumental { get; set; }
     public string? observaciones { get; set; }
+    public bool IsModified { get; set; }
+    public bool IsCreated { get; set; }
+    public string? LastModifiedBy { get; set; }
+    public DateTime LastModifiedAt { get; set; } = DateTime.UtcNow;
+    public List<HistorialEntry> HistorialEntries { get; set; } = new List<HistorialEntry>();
 }
