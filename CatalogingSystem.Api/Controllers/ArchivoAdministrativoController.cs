@@ -3,6 +3,7 @@ using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 
 namespace CatalogingSystem.Api.Controllers;
 
@@ -61,5 +62,30 @@ public class ArchivoAdministrativoController : ControllerBase
     {
         var success = await _service.DeleteArchivoAdministrativo(expediente);
         return success ? NoContent() : NotFound();
+    }
+
+    /// <summary>
+    /// Obtiene el historial de auditoría para un archivo administrativo específico.
+    /// </summary>
+    /// <param name="expediente">El número de expediente del archivo administrativo.</param>
+    /// <returns>Una lista de entradas de auditoría para el archivo especificado.</returns>
+    [HttpGet("{expediente:long}/history")]
+    [Authorize(Policy = "ArchivoAdminRead")]
+    public async Task<ActionResult<IEnumerable<AuditLogDto>>> GetArchivoAdministrativoHistory(long expediente)
+    {
+        if (!Request.Headers.TryGetValue("tenant", out StringValues tenantIdFromHeader))
+        {
+            return BadRequest(new { message = "Header 'tenant' es requerido." });
+        }
+
+        try
+        {
+            var logs = await _service.GetArchivoAdministrativoHistory(expediente, tenantIdFromHeader.ToString());
+            return Ok(logs);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }

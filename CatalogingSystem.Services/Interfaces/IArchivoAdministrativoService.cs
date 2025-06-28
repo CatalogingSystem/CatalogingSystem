@@ -8,4 +8,5 @@ public interface IArchivoAdministrativoService
     Task<ArchivoAdministrativo> CreateArchivoAdministrativo(ArchivoAdministrativoDto dto);
     Task<bool> UpdateArchivoAdministrativo(long expediente, ArchivoAdministrativoDto dto);
     Task<bool> DeleteArchivoAdministrativo(long expediente);
+    Task<IEnumerable<AuditLogDto>> GetArchivoAdministrativoHistory(long expediente, string tenantId);
 }

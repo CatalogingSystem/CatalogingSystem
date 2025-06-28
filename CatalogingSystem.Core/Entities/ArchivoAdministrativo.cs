@@ -1,7 +1,8 @@
 namespace CatalogingSystem.Core.Entities;
 using CatalogingSystem.Core.Enums;
+using CatalogingSystem.Core.Interfaces;
 
-public class ArchivoAdministrativo
+public class ArchivoAdministrativo : IAuditable
 {
     public Guid Id { get; set; }
     public required TipoInstitucion institucion { get; set; }

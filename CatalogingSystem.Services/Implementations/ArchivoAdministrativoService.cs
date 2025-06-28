@@ -68,4 +68,19 @@ public class ArchivoAdministrativoService : IArchivoAdministrativoService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<IEnumerable<AuditLogDto>> GetArchivoAdministrativoHistory(long expediente, string tenantId)
+    {
+        if (string.IsNullOrEmpty(tenantId))
+        {
+            throw new ArgumentException("El TenantId es requerido.");
+        }
+
+        var logs = await _context.AuditLogs
+            .Where(l => l.TenantId == tenantId && l.EntityExpediente == expediente && l.EntityName == "ArchivoAdministrativo")
+            .OrderByDescending(l => l.Timestamp)
+            .ToListAsync();
+
+        return _mapper.Map<IEnumerable<AuditLogDto>>(logs);
+    }
 }
