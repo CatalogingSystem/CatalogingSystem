@@ -1,6 +1,8 @@
+using CatalogingSystem.Core.Interfaces;
+
 namespace CatalogingSystem.Core.Entities;
 
-public class Identification
+public class Identification : IAuditable
 {
     public Guid Id { get; set; }
     public required Section section { get; set; }

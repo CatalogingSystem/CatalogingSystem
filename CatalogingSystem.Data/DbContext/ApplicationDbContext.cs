@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
+using System.Text.Json.Serialization;
 
 namespace CatalogingSystem.Data.DbContext;
 
@@ -44,9 +46,30 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
     private List<AuditEntry> OnBeforeSaveChanges()
     {
         var auditEntries = new List<AuditEntry>();
+        ChangeTracker.DetectChanges();
         foreach (var entry in ChangeTracker.Entries<IAuditable>())
         {
-            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+            // Verificar si hay cambios en la entidad o en sus owned types
+            var hasChanges = entry.State == EntityState.Added || 
+                            entry.State == EntityState.Modified || 
+                            entry.References.Any(r => r.TargetEntry?.Properties.Any(p => !Equals(p.OriginalValue, p.CurrentValue)) == true);
+            if (entry.State == EntityState.Added)
+            {
+                // Registro de creación sin necesidad de cambios
+                var auditEntry = new AuditEntry
+                {
+                    TenantId = _tenantService.TenantId ?? throw new InvalidOperationException("TenantId no está configurado."),
+                    EntityName = entry.Entity.GetType().Name,
+                    EntityExpediente = entry.Entity.expediente,
+                    Action = "Create",
+                    Username = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "Unknown",
+                    UserId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                    Timestamp = DateTime.UtcNow,
+                    Changes = null // Las creaciones no tienen cambios
+                };
+                auditEntries.Add(auditEntry);
+            }
+            else if (hasChanges)
             {
                 var auditEntry = new AuditEntry
                 {
@@ -59,12 +82,13 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
                     Timestamp = DateTime.UtcNow
                 };
 
-                if (entry.State == EntityState.Modified)
-                {
-                    auditEntry.Changes = GetChanges(entry);
-                }
+                // Siempre obtener los cambios, incluso si el estado no es Modified
+                auditEntry.Changes = GetChanges(entry);
 
-                auditEntries.Add(auditEntry);
+                if (auditEntry.Changes != null) // Solo agregar si hay cambios reales
+                {
+                    auditEntries.Add(auditEntry);
+                }
             }
         }
         return auditEntries;
@@ -94,17 +118,58 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
     {
         var changes = new Dictionary<string, object>();
         var propertiesToExclude = new HashSet<string> { "Password" };
-        foreach (var property in entry.OriginalValues.Properties)
+
+        // Propiedades simples
+        foreach (var property in entry.Properties)
         {
-            if (propertiesToExclude.Contains(property.Name)) continue;
-            var originalValue = entry.OriginalValues[property];
-            var currentValue = entry.CurrentValues[property];
-            if (!Equals(originalValue, currentValue))
+            if (propertiesToExclude.Contains(property.Metadata.Name) || !property.IsModified)
             {
-                changes[property.Name] = new { OldValue = originalValue, NewValue = currentValue };
+                continue;
+            }
+
+            changes[property.Metadata.Name] = new
+            {
+                OldValue = property.OriginalValue,
+                NewValue = property.CurrentValue
+            };
+        }
+
+        // Objetos anidados
+        foreach (var navigation in entry.References)
+        {
+            var targetEntry = navigation.TargetEntry;
+
+            if (targetEntry == null || !targetEntry.Metadata.IsOwned())
+            {
+                continue;
+            }
+
+            var ownedChanges = new Dictionary<string, object>();
+
+            foreach (var property in targetEntry.Properties)
+            {
+                if (!Equals(property.OriginalValue, property.CurrentValue))
+                {
+                    ownedChanges[property.Metadata.Name] = new
+                    {
+                        OldValue = property.OriginalValue,
+                        NewValue = property.CurrentValue
+                    };
+                }
+            }
+
+            if (ownedChanges.Any())
+            {
+                changes[navigation.Metadata.Name] = ownedChanges;
             }
         }
-        return JsonSerializer.Serialize(changes);
+
+        if (!changes.Any())
+        {
+            return null;
+        }
+
+        return JsonSerializer.Serialize(changes, new JsonSerializerOptions { WriteIndented = false });
     }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

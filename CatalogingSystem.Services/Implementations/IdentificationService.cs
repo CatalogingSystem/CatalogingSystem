@@ -6,6 +6,7 @@ using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using CatalogingSystem.Data.DbContext;
+using CatalogingSystem.DTOs.Mapping;
 
 public class IdentificationService : IIdentificationService
 {
@@ -64,11 +65,25 @@ public class IdentificationService : IIdentificationService
 
     public async Task<bool> UpdateIdentification(long expediente, UpdateIdentificationDto dto)
     {
-        var identification = await _context.Identifications.FirstOrDefaultAsync(i => i.expediente == expediente);
-        if (identification == null) return false;
+        var identification = await _context.Identifications
+            .Include(i => i.section)
+            .Include(i => i.typology)
+            .Include(i => i.specificName)
+            .Include(i => i.author)
+            .Include(i => i.title)
+            .Include(i => i.material)
+            .Include(i => i.techniques)
+            .FirstOrDefaultAsync(i => i.expediente == expediente);
 
-        _mapper.Map(dto, identification);
+        if (identification == null)
+        {
+            return false; 
+        }
+        MappingUtilityIdentification.MapUpdateIdentificationDtoToEntity(dto, identification);
+
+        _context.ChangeTracker.DetectChanges();
         await _context.SaveChangesAsync();
+
         return true;
     }
 
@@ -81,4 +96,20 @@ public class IdentificationService : IIdentificationService
         await _context.SaveChangesAsync();
         return true;
     }
+    public async Task<IEnumerable<AuditLogDto>> GetIdentificationHistory(long expediente, string tenantId)
+        {
+            if (string.IsNullOrEmpty(tenantId))
+            {
+                throw new ArgumentException("El TenantId es requerido.");
+            }
+
+            var logs = await _context.AuditLogs
+                .Where(l => l.TenantId == tenantId &&
+                       l.EntityExpediente == expediente &&
+                       l.EntityName == "Identification")
+                .OrderByDescending(l => l.Timestamp)
+                .ToListAsync();
+            return _mapper.Map<IEnumerable<AuditLogDto>>(logs);
+        }
+    
 }

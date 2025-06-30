@@ -5,6 +5,7 @@ using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 
 [ApiController]
 [Route("[controller]")]
@@ -61,5 +62,29 @@ public class IdentificationController : ControllerBase
     {
         var success = await _service.DeleteIdentification(expediente);
         return success ? NoContent() : NotFound();
+    }
+    /// <summary>
+    /// Obtiene el historial de auditoría para una identificación específica. [cite: 8, 9]
+    /// </summary>
+    /// <param name="expediente">El número de expediente de la identificación.</param>
+    /// <returns>Una lista de entradas de auditoría para la identificación especificada.</returns>
+    [HttpGet("{expediente:long}/history")]
+    [Authorize(Policy = "ArchivoAdminRead")]
+    public async Task<ActionResult<IEnumerable<AuditLogDto>>> GetIdentificationHistory(long expediente)
+    {
+        if (!Request.Headers.TryGetValue("tenant", out StringValues tenantIdFromHeader))
+        {
+            return BadRequest(new { message = "Header 'tenant' es requerido." });
+        }
+
+        try
+        {
+            var logs = await _service.GetIdentificationHistory(expediente, tenantIdFromHeader.ToString());
+            return Ok(logs);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }
