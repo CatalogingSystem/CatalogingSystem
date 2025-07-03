@@ -6,16 +6,19 @@ using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using CatalogingSystem.Data.DbContext;
+using System.Text.Json;
 
 public class IdentificationService : IIdentificationService
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IAuditService _auditService;
 
-    public IdentificationService(ApplicationDbContext context, IMapper mapper)
+    public IdentificationService(ApplicationDbContext context, IMapper mapper, IAuditService auditService)
     {
         _context = context;
         _mapper = mapper;
+        _auditService = auditService;
     }
 
     public async Task<IEnumerable<IdentificationDto>> GetIdentifications()
@@ -38,7 +41,6 @@ public class IdentificationService : IIdentificationService
 
     public async Task<Identification> CreateIdentification(IdentificationDto dto)
     {
-        // Validar que el expediente exista en ArchivosAdministrativos
         var archivo = await _context.ArchivosAdministrativos
             .FirstOrDefaultAsync(a => a.expediente == dto.Expediente);
         if (archivo == null)
@@ -56,6 +58,8 @@ public class IdentificationService : IIdentificationService
         var identification = _mapper.Map<Identification>(dto);
         identification.Id = Guid.NewGuid();
 
+        await _auditService.LogAuditAsync("CREATE", identification.Id, null, identification);
+
         _context.Identifications.Add(identification);
         await _context.SaveChangesAsync();
 
@@ -67,7 +71,10 @@ public class IdentificationService : IIdentificationService
         var identification = await _context.Identifications.FirstOrDefaultAsync(i => i.expediente == expediente);
         if (identification == null) return false;
 
+        var oldDataJson = JsonSerializer.Serialize(identification);
+        var oldData = JsonSerializer.Deserialize<Identification>(oldDataJson);
         _mapper.Map(dto, identification);
+        await _auditService.LogAuditAsync("UPDATE", identification.Id, oldData, identification);
         await _context.SaveChangesAsync();
         return true;
     }
