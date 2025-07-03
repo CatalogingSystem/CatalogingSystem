@@ -11,11 +11,13 @@ public class ArchivoAdministrativoService : IArchivoAdministrativoService
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IAuditService _auditService;
 
-    public ArchivoAdministrativoService(ApplicationDbContext context, IMapper mapper)
+    public ArchivoAdministrativoService(ApplicationDbContext context, IMapper mapper, IAuditService auditService)
     {
         _context = context;
         _mapper = mapper;
+        _auditService = auditService;
     }
 
     public async Task<IEnumerable<ArchivoAdministrativoDto>> GetArchivosAdministrativos()
@@ -41,6 +43,8 @@ public class ArchivoAdministrativoService : IArchivoAdministrativoService
         var archivo = _mapper.Map<ArchivoAdministrativo>(dto);
         archivo.Id = Guid.NewGuid();
 
+        await _auditService.LogAuditAsync("CREATE", archivo.Id, null, archivo);
+
         _context.ArchivosAdministrativos.Add(archivo);
         await _context.SaveChangesAsync();
 
@@ -52,9 +56,12 @@ public class ArchivoAdministrativoService : IArchivoAdministrativoService
         var archivo = await _context.ArchivosAdministrativos.FirstOrDefaultAsync(a => a.expediente == expediente);
         if (archivo == null) return false;
 
+        var oldData = _mapper.Map<ArchivoAdministrativo>(archivo);
         var expedienteOriginal = archivo.expediente;
         _mapper.Map(dto, archivo);
         archivo.expediente = expedienteOriginal;
+
+        await _auditService.LogAuditAsync("UPDATE", archivo.Id, oldData, archivo);
         await _context.SaveChangesAsync();
         return true;
     }

@@ -18,6 +18,7 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<ArchivoAdministrativo> ArchivosAdministrativos { get; set; }
     public DbSet<Identification> Identifications { get; set; }
     public DbSet<GraphicDocumentation> GraphicDocumentations { get; set; }
+    public DbSet<AuditLog> AuditLogs { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -103,5 +104,10 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
         modelBuilder.Entity<User>()
             .Property(u => u.TenantId)
             .IsRequired(false);
+
+        // AuditLog configuration
+        modelBuilder.Entity<AuditLog>()
+            .Property(a => a.Id)
+            .HasDefaultValueSql("gen_random_uuid()");
     }
 }
