@@ -6,6 +6,6 @@ namespace CatalogingSystem.Services.Interfaces
     public interface ITenantService
     {
         Task<Tenant> CreateTenantAsync(CreateTenantRequest request);
-        Task<List<Tenant>> GetAllTenantsAsync();
+        Task<PagedResultDto<TenantDto>> GetAllTenantsAsync(int page = 1, int size = 10);
     }
 }

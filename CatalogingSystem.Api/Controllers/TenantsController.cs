@@ -1,11 +1,13 @@
-namespace CatalogingSystem.Api.Controllers;
-
+using Microsoft.AspNetCore.Mvc;
 using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
+namespace CatalogingSystem.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize(Roles = "SuperDirector")]
 public class TenantsController : ControllerBase
 {
     private readonly ITenantService _tenantService;
@@ -15,17 +17,25 @@ public class TenantsController : ControllerBase
         _tenantService = tenantService;
     }
 
+    /// <summary>
+    /// Gets all tenants with pagination.
+    /// </summary>
+    /// <param name="page">The page number (default is 1).</param>
+    /// <param name="size">The number of items per page (default is 10).</param>
+    /// <returns>A paginated list of tenants.</returns>
     [HttpGet]
-    public async Task<IActionResult> GetAllTenants()
+    public async Task<IActionResult> GetAllTenants(
+        [FromQuery] int page = 1,
+        [FromQuery] int size = 10)
     {
         try
         {
-            var tenants = await _tenantService.GetAllTenantsAsync();
-            return Ok(tenants);
+            var pagedTenants = await _tenantService.GetAllTenantsAsync(page, size);
+            return Ok(pagedTenants);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = $"Error al listar los tenants: {ex.Message}" });
+            return StatusCode(500, new { message = $"Error retrieving tenants: {ex.Message}" });
         }
     }
 
@@ -43,7 +53,7 @@ public class TenantsController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = $"Error al crear el tenant: {ex.Message}" });
+            return StatusCode(500, new { message = $"Error creating tenant: {ex.Message}" });
         }
     }
 }

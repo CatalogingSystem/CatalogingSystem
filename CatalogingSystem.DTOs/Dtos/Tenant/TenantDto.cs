@@ -1,11 +1,10 @@
-namespace CatalogingSystem.Core.Entities;
+namespace CatalogingSystem.DTOs.Dtos;
 
-public class Tenant
+public class TenantDto
 {
     public required string Id { get; set; }
     public required string Name { get; set; }
     public required string ISIL { get; set; }
     public string? Description { get; set; }
-    public string? ConnectionString { get; set; }
     public string? ImageUrl { get; set; }
-}   
+}
