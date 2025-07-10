@@ -30,26 +30,39 @@ public class AuditService : IAuditService
 
         if (operation == "UPDATE")
         {
-            // Si ambos oldData y newData son null, no crear auditoría
             if (oldData == null && newData == null)
             {
                 return;
             }
 
-            // Si hay datos para comparar, verificar si hay cambios
             if (oldData != null && newData != null)
             {
-                var changedProperties = new Dictionary<string, (string OldValue, string NewValue)>();
+                var changedProperties = new List<object>();
                 CompareProperties(oldData, newData, "", changedProperties);
 
                 if (changedProperties.Any())
                 {
-                    oldDataJson = JsonSerializer.Serialize(changedProperties.Select(p => new { Property = p.Key, OldValue = p.Value.OldValue }));
-                    newDataJson = JsonSerializer.Serialize(changedProperties.Select(p => new { Property = p.Key, NewValue = p.Value.NewValue }));
+                    var oldValues = changedProperties.Select(p => new
+                    {
+                        Property = p.GetType().GetProperty("Property")?.GetValue(p),
+                        OldValue = p.GetType().GetProperty("OldValue")?.GetValue(p)
+                    }).ToList();
+                    var newValues = changedProperties.Select(p => new
+                    {
+                        Property = p.GetType().GetProperty("Property")?.GetValue(p),
+                        NewValue = p.GetType().GetProperty("NewValue")?.GetValue(p)
+                    }).ToList();
+
+                    var serializerOptions = new JsonSerializerOptions
+                    {
+                        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                    };
+
+                    oldDataJson = JsonSerializer.Serialize(oldValues, serializerOptions);
+                    newDataJson = JsonSerializer.Serialize(newValues, serializerOptions);
                 }
                 else
                 {
-                    // No hay cambios, no crear auditoría
                     return;
                 }
             }
@@ -61,11 +74,9 @@ public class AuditService : IAuditService
         }
         else
         {
-            // Para otras operaciones, no hacer nada por ahora
             return;
         }
 
-        // Crear el registro de auditoría solo si hay datos relevantes
         var auditLog = new AuditLog
         {
             Id = Guid.NewGuid(),
@@ -99,7 +110,26 @@ public class AuditService : IAuditService
         return null;
     }
 
-    private void CompareProperties(object oldData, object newData, string prefix, Dictionary<string, (string OldValue, string NewValue)> changedProperties)
+    private string GetFriendlyTypeName(Type type)
+    {
+        if (type.IsGenericType)
+        {
+            if (type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                var underlyingType = Nullable.GetUnderlyingType(type);
+                return GetFriendlyTypeName(underlyingType) + "?";
+            }
+            else
+            {
+                var genericArgs = type.GetGenericArguments();
+                var typeNames = string.Join(", ", genericArgs.Select(t => GetFriendlyTypeName(t)));
+                return $"{type.Name.Split('`')[0]}<{typeNames}>";
+            }
+        }
+        return type.Name;
+    }
+
+    private void CompareProperties(object oldData, object newData, string prefix, List<object> changedProperties)
     {
         if (oldData == null || newData == null) return;
 
@@ -108,7 +138,7 @@ public class AuditService : IAuditService
 
         foreach (var prop in properties)
         {
-            if (prop.Name == "Id" || !prop.CanRead) continue; // Ignorar propiedades sin getter
+            if (prop.Name == "Id" || !prop.CanRead) continue;
 
             var oldValue = prop.GetValue(oldData);
             var newValue = prop.GetValue(newData);
@@ -121,31 +151,47 @@ public class AuditService : IAuditService
                 }
                 else if (oldValue != newValue)
                 {
-                    changedProperties[$"{prefix}{prop.Name}"] = (oldValue?.ToString() ?? "null", newValue?.ToString() ?? "null");
+                    changedProperties.Add(new
+                    {
+                        Property = $"{prefix}{prop.Name}",
+                        OldValue = oldValue != null ? new { Value = oldValue, Type = GetFriendlyTypeName(oldValue.GetType()) } : null,
+                        NewValue = newValue != null ? new { Value = newValue, Type = GetFriendlyTypeName(newValue.GetType()) } : null
+                    });
                 }
             }
             else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
             {
-                // Manejar colecciones como List<string>
                 var oldCollection = oldValue as IEnumerable;
                 var newCollection = newValue as IEnumerable;
-                string oldCollectionStr = oldCollection != null ? string.Join(", ", oldCollection.Cast<object>()) : "null";
-                string newCollectionStr = newCollection != null ? string.Join(", ", newCollection.Cast<object>()) : "null";
-                if (oldCollectionStr != newCollectionStr)
+                if (!AreCollectionsEqual(oldCollection, newCollection))
                 {
-                    changedProperties[$"{prefix}{prop.Name}"] = (oldCollectionStr, newCollectionStr);
+                    changedProperties.Add(new
+                    {
+                        Property = $"{prefix}{prop.Name}",
+                        OldValue = oldCollection != null ? new { Value = oldCollection, Type = GetFriendlyTypeName(prop.PropertyType) } : null,
+                        NewValue = newCollection != null ? new { Value = newCollection, Type = GetFriendlyTypeName(prop.PropertyType) } : null
+                    });
                 }
             }
             else
             {
-                var oldValueStr = oldValue?.ToString();
-                var newValueStr = newValue?.ToString();
-
-                if (oldValueStr != newValueStr)
+                if (!Equals(oldValue, newValue))
                 {
-                    changedProperties[$"{prefix}{prop.Name}"] = (oldValueStr ?? "null", newValueStr ?? "null");
+                    changedProperties.Add(new
+                    {
+                        Property = $"{prefix}{prop.Name}",
+                        OldValue = oldValue != null ? new { Value = oldValue, Type = GetFriendlyTypeName(prop.PropertyType) } : null,
+                        NewValue = newValue != null ? new { Value = newValue, Type = GetFriendlyTypeName(prop.PropertyType) } : null
+                    });
                 }
             }
         }
+    }
+
+    private bool AreCollectionsEqual(IEnumerable oldCollection, IEnumerable newCollection)
+    {
+        if (oldCollection == null && newCollection == null) return true;
+        if (oldCollection == null || newCollection == null) return false;
+        return oldCollection.Cast<object>().SequenceEqual(newCollection.Cast<object>());
     }
 }
