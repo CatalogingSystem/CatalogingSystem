@@ -19,6 +19,7 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<Identification> Identifications { get; set; }
     public DbSet<GraphicDocumentation> GraphicDocumentations { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<AdministrativeData> AdministrativeData { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -109,5 +110,33 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
         modelBuilder.Entity<AuditLog>()
             .Property(a => a.Id)
             .HasDefaultValueSql("gen_random_uuid()");
+
+        // AdministrativeData configuration
+        modelBuilder.Entity<AdministrativeData>()
+            .Property(ad => ad.Id).HasDefaultValueSql("gen_random_uuid()");
+
+        modelBuilder.Entity<AdministrativeData>()
+            .Property(ad => ad.EntryForm)
+            .HasConversion<string>();
+
+        modelBuilder.Entity<AdministrativeData>()
+            .HasOne(ad => ad.ArchivoAdministrativo)
+            .WithOne()
+            .HasForeignKey<AdministrativeData>(ad => ad.FileNumber)
+            .HasPrincipalKey<ArchivoAdministrativo>(a => a.expediente)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<AdministrativeData>()
+            .OwnsOne(ad => ad.CopiesReproductions);
+
+        modelBuilder.Entity<AdministrativeData>()
+            .OwnsOne(ad => ad.Valuation);
+
+        modelBuilder.Entity<AdministrativeData>()
+            .OwnsOne(ad => ad.Cataloger);
+
+        modelBuilder.Entity<AdministrativeData>()
+            .HasIndex(ad => ad.FileNumber)
+            .IsUnique();
     }
 }
