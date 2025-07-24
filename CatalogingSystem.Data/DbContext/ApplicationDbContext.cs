@@ -20,6 +20,8 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<GraphicDocumentation> GraphicDocumentations { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<AdministrativeData> AdministrativeData { get; set; }
+    public DbSet<TemporalMovement> TemporalMovements { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -138,5 +140,28 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
         modelBuilder.Entity<AdministrativeData>()
             .HasIndex(ad => ad.FileNumber)
             .IsUnique();
+
+        // TemporalMovement configuration
+        modelBuilder.Entity<TemporalMovement>()
+            .Property(tm => tm.Id).HasDefaultValueSql("gen_random_uuid()");
+
+        modelBuilder.Entity<TemporalMovement>()
+            .HasOne(tm => tm.ArchivoAdministrativo)
+            .WithMany()
+            .HasForeignKey(tm => tm.Expediente)
+            .HasPrincipalKey(a => a.expediente)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TemporalMovement>()
+            .OwnsOne(tm => tm.Applicant);
+
+        modelBuilder.Entity<TemporalMovement>()
+            .OwnsOne(tm => tm.Representative);
+
+        modelBuilder.Entity<TemporalMovement>()
+            .OwnsOne(tm => tm.Departure);
+
+        modelBuilder.Entity<TemporalMovement>()
+            .OwnsOne(tm => tm.Return);
     }
 }

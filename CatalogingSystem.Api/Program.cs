@@ -134,7 +134,7 @@ builder.Services.AddAuthorization(options =>
              context.User.HasClaim("PermissionLevel", "ReadWrite"))));
 });
 
-builder.Services.AddAutoMapper(typeof(ArchivoAdministrativoProfile), typeof(IdentificationProfile), typeof(GraphicDocumentationProfile), typeof(CatalogItemProfile), typeof(AdministrativeDataProfile));
+builder.Services.AddAutoMapper(typeof(ArchivoAdministrativoProfile), typeof(IdentificationProfile), typeof(GraphicDocumentationProfile), typeof(CatalogItemProfile), typeof(AdministrativeDataProfile), typeof(TemporalMovementProfile));
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BaseDbContext>(options => options.UseNpgsql(connectionString));
@@ -152,7 +152,7 @@ builder.Services.AddScoped<SuperDirectorAuthService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAdministrativeDataService, AdministrativeDataService>();
-
+builder.Services.AddScoped<ITemporalMovementService, TemporalMovementService>();
 
 var app = builder.Build();
 
