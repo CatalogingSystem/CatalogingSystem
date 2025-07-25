@@ -21,7 +21,7 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<AdministrativeData> AdministrativeData { get; set; }
     public DbSet<TemporalMovement> TemporalMovements { get; set; }
-
+    public DbSet<Dating> Datings { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -163,5 +163,36 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
 
         modelBuilder.Entity<TemporalMovement>()
             .OwnsOne(tm => tm.Return);
+            
+        // Dating configuration
+        modelBuilder.Entity<Dating>()
+            .Property(d => d.Id).HasDefaultValueSql("gen_random_uuid()");
+
+        modelBuilder.Entity<Dating>()
+            .HasOne(d => d.ArchivoAdministrativo)
+            .WithOne()
+            .HasForeignKey<Dating>(d => d.Expediente)
+            .HasPrincipalKey<ArchivoAdministrativo>(a => a.expediente)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Dating>()
+            .OwnsOne(d => d.SimpleDate);
+
+        modelBuilder.Entity<Dating>()
+            .OwnsOne(d => d.DateRange, dr =>
+            {
+                dr.OwnsOne(r => r.From);
+                dr.OwnsOne(r => r.To);
+            });
+
+        modelBuilder.Entity<Dating>()
+            .OwnsOne(d => d.ApproximateDating);
+
+        modelBuilder.Entity<Dating>()
+            .OwnsOne(d => d.Notes);
+
+        modelBuilder.Entity<Dating>()
+            .HasIndex(d => d.Expediente)
+            .IsUnique();
     }
 }

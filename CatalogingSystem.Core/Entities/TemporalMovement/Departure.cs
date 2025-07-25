@@ -2,6 +2,7 @@ namespace CatalogingSystem.Core.Entities;
 
 public class Departure
 {
+    public bool IsPresent { get; set; } = true;
     public string? Company { get; set; }
     public string? Location { get; set; }
     public DateTime? Date { get; set; }
