@@ -13,12 +13,44 @@ public class TemporalMovementService : ITemporalMovementService
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IAuditService _auditService;
+    private const int MaxPageSize = 50;
 
     public TemporalMovementService(ApplicationDbContext context, IMapper mapper, IAuditService auditService)
     {
         _context = context;
         _mapper = mapper;
         _auditService = auditService;
+    }
+
+    public async Task<PagedResultDto<TemporalMovementDto>> GetTemporalMovementsByExpediente(long expediente, int page = 1, int size = 10)
+    {
+        if (page < 1) page = 1;
+        if (size < 1) size = 10;
+        if (size > MaxPageSize) size = MaxPageSize;
+
+        var query = _context.TemporalMovements
+            .AsNoTracking()
+            .Where(m => m.Expediente == expediente)
+            .Include(m => m.ArchivoAdministrativo);
+
+        int totalItems = await query.CountAsync();
+
+        var movements = await query
+            .OrderBy(m => m.DepartureDate)
+            .Skip((page - 1) * size)
+            .Take(size)
+            .ToListAsync();
+
+        var movementDtos = _mapper.Map<List<TemporalMovementDto>>(movements);
+
+        return new PagedResultDto<TemporalMovementDto>
+        {
+            Items = movementDtos,
+            TotalItems = totalItems,
+            TotalPages = (int)Math.Ceiling(totalItems / (double)size),
+            CurrentPage = page,
+            PageSize = size
+        };
     }
 
     public async Task<IEnumerable<TemporalMovementDto>> GetTemporalMovementsByExpediente(long expediente)

@@ -1,14 +1,10 @@
-namespace CatalogingSystem.Services.Implementations;
-
 using AutoMapper;
 using CatalogingSystem.Data.DbContext;
 using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+namespace CatalogingSystem.Services.Implementations;
 
 public class CatalogService : ICatalogService
 {
@@ -35,11 +31,23 @@ public class CatalogService : ICatalogService
                     join graphicDoc in _context.GraphicDocumentations.AsNoTracking()
                         on archivo.expediente equals graphicDoc.expediente into graphicGroup
                     from graphicDoc in graphicGroup.DefaultIfEmpty()
+                    join adminData in _context.AdministrativeData.AsNoTracking()
+                        on archivo.expediente equals adminData.FileNumber into adminGroup
+                    from adminData in adminGroup.DefaultIfEmpty()
+                    join conservation in _context.Conservations.AsNoTracking()
+                        on archivo.expediente equals conservation.Expediente into consGroup
+                    from conservation in consGroup.DefaultIfEmpty()
+                    join dating in _context.Datings.AsNoTracking()
+                        on archivo.expediente equals dating.Expediente into datingGroup
+                    from dating in datingGroup.DefaultIfEmpty()
                     select new
                     {
                         Archivo = archivo,
                         Identification = identification,
-                        GraphicDocumentation = graphicDoc
+                        GraphicDocumentation = graphicDoc,
+                        AdministrativeData = adminData,
+                        Conservation = conservation,
+                        Dating = dating
                     };
 
         int totalItems = await query.CountAsync();
@@ -55,7 +63,10 @@ public class CatalogService : ICatalogService
             Expediente = x.Archivo.expediente,
             ArchivoAdministrativo = _mapper.Map<ArchivoAdministrativoDto>(x.Archivo),
             Identification = x.Identification != null ? _mapper.Map<IdentificationDto>(x.Identification) : null,
-            GraphicDocumentation = x.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(x.GraphicDocumentation) : null
+            GraphicDocumentation = x.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(x.GraphicDocumentation) : null,
+            AdministrativeData = x.AdministrativeData != null ? _mapper.Map<AdministrativeDataDto>(x.AdministrativeData) : null,
+            Conservation = x.Conservation != null ? _mapper.Map<ConservationDto>(x.Conservation) : null,
+            Dating = x.Dating != null ? _mapper.Map<DatingDto>(x.Dating) : null
         }).ToList();
 
         return new PagedResultDto<CatalogItemDto>
@@ -77,12 +88,24 @@ public class CatalogService : ICatalogService
                            join graphicDoc in _context.GraphicDocumentations.AsNoTracking()
                                on archivo.expediente equals graphicDoc.expediente into graphicGroup
                            from graphicDoc in graphicGroup.DefaultIfEmpty()
+                           join adminData in _context.AdministrativeData.AsNoTracking()
+                               on archivo.expediente equals adminData.FileNumber into adminGroup
+                           from adminData in adminGroup.DefaultIfEmpty()
+                           join conservation in _context.Conservations.AsNoTracking()
+                               on archivo.expediente equals conservation.Expediente into consGroup
+                           from conservation in consGroup.DefaultIfEmpty()
+                           join dating in _context.Datings.AsNoTracking()
+                               on archivo.expediente equals dating.Expediente into datingGroup
+                           from dating in datingGroup.DefaultIfEmpty()
                            where archivo.expediente == expediente
                            select new
                            {
                                Archivo = archivo,
                                Identification = identification,
-                               GraphicDocumentation = graphicDoc
+                               GraphicDocumentation = graphicDoc,
+                               AdministrativeData = adminData,
+                               Conservation = conservation,
+                               Dating = dating
                            }).FirstOrDefaultAsync();
 
         if (result == null || result.Archivo == null) return null;
@@ -92,7 +115,10 @@ public class CatalogService : ICatalogService
             Expediente = result.Archivo.expediente,
             ArchivoAdministrativo = _mapper.Map<ArchivoAdministrativoDto>(result.Archivo),
             Identification = result.Identification != null ? _mapper.Map<IdentificationDto>(result.Identification) : null,
-            GraphicDocumentation = result.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(result.GraphicDocumentation) : null
+            GraphicDocumentation = result.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(result.GraphicDocumentation) : null,
+            AdministrativeData = result.AdministrativeData != null ? _mapper.Map<AdministrativeDataDto>(result.AdministrativeData) : null,
+            Conservation = result.Conservation != null ? _mapper.Map<ConservationDto>(result.Conservation) : null,
+            Dating = result.Dating != null ? _mapper.Map<DatingDto>(result.Dating) : null
         };
     }
 
@@ -115,11 +141,23 @@ public class CatalogService : ICatalogService
                     join graphicDoc in _context.GraphicDocumentations.AsNoTracking()
                         on archivo.expediente equals graphicDoc.expediente into graphicGroup
                     from graphicDoc in graphicGroup.DefaultIfEmpty()
+                    join adminData in _context.AdministrativeData.AsNoTracking()
+                        on archivo.expediente equals adminData.FileNumber into adminGroup
+                    from adminData in adminGroup.DefaultIfEmpty()
+                    join conservation in _context.Conservations.AsNoTracking()
+                        on archivo.expediente equals conservation.Expediente into consGroup
+                    from conservation in consGroup.DefaultIfEmpty()
+                    join dating in _context.Datings.AsNoTracking()
+                        on archivo.expediente equals dating.Expediente into datingGroup
+                    from dating in datingGroup.DefaultIfEmpty()
                     select new
                     {
                         Archivo = archivo,
                         Identification = identification,
-                        GraphicDocumentation = graphicDoc
+                        GraphicDocumentation = graphicDoc,
+                        AdministrativeData = adminData,
+                        Conservation = conservation,
+                        Dating = dating
                     };
 
         if (!string.IsNullOrEmpty(materialName) || !string.IsNullOrEmpty(authorName) ||
@@ -145,7 +183,10 @@ public class CatalogService : ICatalogService
             Expediente = x.Archivo.expediente,
             ArchivoAdministrativo = _mapper.Map<ArchivoAdministrativoDto>(x.Archivo),
             Identification = x.Identification != null ? _mapper.Map<IdentificationDto>(x.Identification) : null,
-            GraphicDocumentation = x.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(x.GraphicDocumentation) : null
+            GraphicDocumentation = x.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(x.GraphicDocumentation) : null,
+            AdministrativeData = x.AdministrativeData != null ? _mapper.Map<AdministrativeDataDto>(x.AdministrativeData) : null,
+            Conservation = x.Conservation != null ? _mapper.Map<ConservationDto>(x.Conservation) : null,
+            Dating = x.Dating != null ? _mapper.Map<DatingDto>(x.Dating) : null
         }).ToList();
 
         return new PagedResultDto<CatalogItemDto>
@@ -157,6 +198,7 @@ public class CatalogService : ICatalogService
             PageSize = size
         };
     }
+
     public async Task<bool> DeleteCatalogItem(long expediente)
     {
         var archivo = await _context.ArchivosAdministrativos
@@ -175,6 +217,27 @@ public class CatalogService : ICatalogService
         if (identification != null)
         {
             _context.Identifications.Remove(identification);
+        }
+
+        var adminData = await _context.AdministrativeData
+            .FirstOrDefaultAsync(ad => ad.FileNumber == expediente);
+        if (adminData != null)
+        {
+            _context.AdministrativeData.Remove(adminData);
+        }
+
+        var conservation = await _context.Conservations
+            .FirstOrDefaultAsync(c => c.Expediente == expediente);
+        if (conservation != null)
+        {
+            _context.Conservations.Remove(conservation);
+        }
+
+        var dating = await _context.Datings
+            .FirstOrDefaultAsync(d => d.Expediente == expediente);
+        if (dating != null)
+        {
+            _context.Datings.Remove(dating);
         }
 
         _context.ArchivosAdministrativos.Remove(archivo);
