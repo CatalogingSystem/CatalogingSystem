@@ -134,7 +134,15 @@ builder.Services.AddAuthorization(options =>
              context.User.HasClaim("PermissionLevel", "ReadWrite"))));
 });
 
-builder.Services.AddAutoMapper(typeof(ArchivoAdministrativoProfile), typeof(IdentificationProfile), typeof(GraphicDocumentationProfile), typeof(CatalogItemProfile), typeof(AdministrativeDataProfile), typeof(TemporalMovementProfile), typeof(DatingProfile));
+builder.Services.AddAutoMapper(
+    typeof(ArchivoAdministrativoProfile), 
+    typeof(IdentificationProfile), 
+    typeof(GraphicDocumentationProfile), 
+    typeof(CatalogItemProfile), 
+    typeof(AdministrativeDataProfile), 
+    typeof(TemporalMovementProfile), 
+    typeof(DatingProfile),
+    typeof(ConservationProfile));
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BaseDbContext>(options => options.UseNpgsql(connectionString));
@@ -154,6 +162,7 @@ builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAdministrativeDataService, AdministrativeDataService>();
 builder.Services.AddScoped<ITemporalMovementService, TemporalMovementService>();
 builder.Services.AddScoped<IDatingService, DatingService>();
+builder.Services.AddScoped<IConservationService, ConservationService>();
 
 var app = builder.Build();
 

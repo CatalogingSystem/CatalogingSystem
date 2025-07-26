@@ -22,6 +22,7 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<AdministrativeData> AdministrativeData { get; set; }
     public DbSet<TemporalMovement> TemporalMovements { get; set; }
     public DbSet<Dating> Datings { get; set; }
+    public DbSet<Conservation> Conservations { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -193,6 +194,20 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
 
         modelBuilder.Entity<Dating>()
             .HasIndex(d => d.Expediente)
+            .IsUnique();
+        // Conservation configuration
+        modelBuilder.Entity<Conservation>()
+            .Property(c => c.Id).HasDefaultValueSql("gen_random_uuid()");
+
+        modelBuilder.Entity<Conservation>()
+            .HasOne(c => c.ArchivoAdministrativo)
+            .WithOne()
+            .HasForeignKey<Conservation>(c => c.Expediente)
+            .HasPrincipalKey<ArchivoAdministrativo>(a => a.expediente)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Conservation>()
+            .HasIndex(c => c.Expediente)
             .IsUnique();
     }
 }
