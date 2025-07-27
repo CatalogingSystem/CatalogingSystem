@@ -28,15 +28,18 @@ public class CatalogService : ICatalogService
                     join identification in _context.Identifications.AsNoTracking()
                         on archivo.expediente equals identification.expediente into identGroup
                     from identification in identGroup.DefaultIfEmpty()
-                    join graphicDoc in _context.GraphicDocumentations.AsNoTracking()
-                        on archivo.expediente equals graphicDoc.expediente into graphicGroup
-                    from graphicDoc in graphicGroup.DefaultIfEmpty()
+                    join description in _context.DescriptionClassifications.AsNoTracking()
+                        on archivo.expediente equals description.Expediente into descGroup
+                    from description in descGroup.DefaultIfEmpty()
                     join adminData in _context.AdministrativeData.AsNoTracking()
                         on archivo.expediente equals adminData.FileNumber into adminGroup
                     from adminData in adminGroup.DefaultIfEmpty()
                     join conservation in _context.Conservations.AsNoTracking()
                         on archivo.expediente equals conservation.Expediente into consGroup
                     from conservation in consGroup.DefaultIfEmpty()
+                    join graphicDoc in _context.GraphicDocumentations.AsNoTracking()
+                        on archivo.expediente equals graphicDoc.expediente into graphicGroup
+                    from graphicDoc in graphicGroup.DefaultIfEmpty()
                     join dating in _context.Datings.AsNoTracking()
                         on archivo.expediente equals dating.Expediente into datingGroup
                     from dating in datingGroup.DefaultIfEmpty()
@@ -44,9 +47,10 @@ public class CatalogService : ICatalogService
                     {
                         Archivo = archivo,
                         Identification = identification,
-                        GraphicDocumentation = graphicDoc,
+                        DescriptionClassification = description, 
                         AdministrativeData = adminData,
                         Conservation = conservation,
+                        GraphicDocumentation = graphicDoc,
                         Dating = dating
                     };
 
@@ -63,9 +67,10 @@ public class CatalogService : ICatalogService
             Expediente = x.Archivo.expediente,
             ArchivoAdministrativo = _mapper.Map<ArchivoAdministrativoDto>(x.Archivo),
             Identification = x.Identification != null ? _mapper.Map<IdentificationDto>(x.Identification) : null,
-            GraphicDocumentation = x.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(x.GraphicDocumentation) : null,
+            DescriptionClassification = x.DescriptionClassification != null ? _mapper.Map<DescriptionClassificationDto>(x.DescriptionClassification) : null,
             AdministrativeData = x.AdministrativeData != null ? _mapper.Map<AdministrativeDataDto>(x.AdministrativeData) : null,
             Conservation = x.Conservation != null ? _mapper.Map<ConservationDto>(x.Conservation) : null,
+            GraphicDocumentation = x.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(x.GraphicDocumentation) : null,
             Dating = x.Dating != null ? _mapper.Map<DatingDto>(x.Dating) : null
         }).ToList();
 
@@ -82,31 +87,35 @@ public class CatalogService : ICatalogService
     public async Task<CatalogItemDto?> GetCatalogItem(long expediente)
     {
         var result = await (from archivo in _context.ArchivosAdministrativos.AsNoTracking()
-                           join identification in _context.Identifications.AsNoTracking()
-                               on archivo.expediente equals identification.expediente into identGroup
-                           from identification in identGroup.DefaultIfEmpty()
-                           join graphicDoc in _context.GraphicDocumentations.AsNoTracking()
-                               on archivo.expediente equals graphicDoc.expediente into graphicGroup
-                           from graphicDoc in graphicGroup.DefaultIfEmpty()
-                           join adminData in _context.AdministrativeData.AsNoTracking()
-                               on archivo.expediente equals adminData.FileNumber into adminGroup
-                           from adminData in adminGroup.DefaultIfEmpty()
-                           join conservation in _context.Conservations.AsNoTracking()
-                               on archivo.expediente equals conservation.Expediente into consGroup
-                           from conservation in consGroup.DefaultIfEmpty()
-                           join dating in _context.Datings.AsNoTracking()
-                               on archivo.expediente equals dating.Expediente into datingGroup
-                           from dating in datingGroup.DefaultIfEmpty()
-                           where archivo.expediente == expediente
-                           select new
-                           {
-                               Archivo = archivo,
-                               Identification = identification,
-                               GraphicDocumentation = graphicDoc,
-                               AdministrativeData = adminData,
-                               Conservation = conservation,
-                               Dating = dating
-                           }).FirstOrDefaultAsync();
+                        join identification in _context.Identifications.AsNoTracking()
+                            on archivo.expediente equals identification.expediente into identGroup
+                        from identification in identGroup.DefaultIfEmpty()
+                        join description in _context.DescriptionClassifications.AsNoTracking()
+                            on archivo.expediente equals description.Expediente into descGroup
+                        from description in descGroup.DefaultIfEmpty()
+                        join adminData in _context.AdministrativeData.AsNoTracking()
+                            on archivo.expediente equals adminData.FileNumber into adminGroup
+                        from adminData in adminGroup.DefaultIfEmpty()
+                        join conservation in _context.Conservations.AsNoTracking()
+                            on archivo.expediente equals conservation.Expediente into consGroup
+                        from conservation in consGroup.DefaultIfEmpty()
+                        join graphicDoc in _context.GraphicDocumentations.AsNoTracking()
+                            on archivo.expediente equals graphicDoc.expediente into graphicGroup
+                        from graphicDoc in graphicGroup.DefaultIfEmpty()
+                        join dating in _context.Datings.AsNoTracking()
+                            on archivo.expediente equals dating.Expediente into datingGroup
+                        from dating in datingGroup.DefaultIfEmpty()
+                        where archivo.expediente == expediente
+                        select new
+                        {
+                            Archivo = archivo,
+                            Identification = identification,
+                            DescriptionClassification = description,
+                            AdministrativeData = adminData,
+                            Conservation = conservation,
+                            GraphicDocumentation = graphicDoc,
+                            Dating = dating
+                        }).FirstOrDefaultAsync();
 
         if (result == null || result.Archivo == null) return null;
 
@@ -115,9 +124,10 @@ public class CatalogService : ICatalogService
             Expediente = result.Archivo.expediente,
             ArchivoAdministrativo = _mapper.Map<ArchivoAdministrativoDto>(result.Archivo),
             Identification = result.Identification != null ? _mapper.Map<IdentificationDto>(result.Identification) : null,
-            GraphicDocumentation = result.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(result.GraphicDocumentation) : null,
+            DescriptionClassification = result.DescriptionClassification != null ? _mapper.Map<DescriptionClassificationDto>(result.DescriptionClassification) : null,
             AdministrativeData = result.AdministrativeData != null ? _mapper.Map<AdministrativeDataDto>(result.AdministrativeData) : null,
             Conservation = result.Conservation != null ? _mapper.Map<ConservationDto>(result.Conservation) : null,
+            GraphicDocumentation = result.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(result.GraphicDocumentation) : null,
             Dating = result.Dating != null ? _mapper.Map<DatingDto>(result.Dating) : null
         };
     }
@@ -138,15 +148,18 @@ public class CatalogService : ICatalogService
                     join identification in _context.Identifications.AsNoTracking()
                         on archivo.expediente equals identification.expediente into identGroup
                     from identification in identGroup.DefaultIfEmpty()
-                    join graphicDoc in _context.GraphicDocumentations.AsNoTracking()
-                        on archivo.expediente equals graphicDoc.expediente into graphicGroup
-                    from graphicDoc in graphicGroup.DefaultIfEmpty()
+                    join description in _context.DescriptionClassifications.AsNoTracking()
+                        on archivo.expediente equals description.Expediente into descGroup
+                    from description in descGroup.DefaultIfEmpty()
                     join adminData in _context.AdministrativeData.AsNoTracking()
                         on archivo.expediente equals adminData.FileNumber into adminGroup
                     from adminData in adminGroup.DefaultIfEmpty()
                     join conservation in _context.Conservations.AsNoTracking()
                         on archivo.expediente equals conservation.Expediente into consGroup
                     from conservation in consGroup.DefaultIfEmpty()
+                    join graphicDoc in _context.GraphicDocumentations.AsNoTracking()
+                        on archivo.expediente equals graphicDoc.expediente into graphicGroup
+                    from graphicDoc in graphicGroup.DefaultIfEmpty()
                     join dating in _context.Datings.AsNoTracking()
                         on archivo.expediente equals dating.Expediente into datingGroup
                     from dating in datingGroup.DefaultIfEmpty()
@@ -154,9 +167,10 @@ public class CatalogService : ICatalogService
                     {
                         Archivo = archivo,
                         Identification = identification,
-                        GraphicDocumentation = graphicDoc,
+                        DescriptionClassification = description,
                         AdministrativeData = adminData,
                         Conservation = conservation,
+                        GraphicDocumentation = graphicDoc,
                         Dating = dating
                     };
 
@@ -183,9 +197,10 @@ public class CatalogService : ICatalogService
             Expediente = x.Archivo.expediente,
             ArchivoAdministrativo = _mapper.Map<ArchivoAdministrativoDto>(x.Archivo),
             Identification = x.Identification != null ? _mapper.Map<IdentificationDto>(x.Identification) : null,
-            GraphicDocumentation = x.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(x.GraphicDocumentation) : null,
+            DescriptionClassification = x.DescriptionClassification != null ? _mapper.Map<DescriptionClassificationDto>(x.DescriptionClassification) : null,
             AdministrativeData = x.AdministrativeData != null ? _mapper.Map<AdministrativeDataDto>(x.AdministrativeData) : null,
             Conservation = x.Conservation != null ? _mapper.Map<ConservationDto>(x.Conservation) : null,
+            GraphicDocumentation = x.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(x.GraphicDocumentation) : null,
             Dating = x.Dating != null ? _mapper.Map<DatingDto>(x.Dating) : null
         }).ToList();
 
@@ -205,6 +220,15 @@ public class CatalogService : ICatalogService
             .FirstOrDefaultAsync(a => a.expediente == expediente);
         if (archivo == null) return false;
 
+        // Eliminar todos los TemporalMovement asociados al expediente
+        var temporalMovements = await _context.TemporalMovements
+            .Where(tm => tm.Expediente == expediente)
+            .ToListAsync();
+        if (temporalMovements.Any())
+        {
+            _context.TemporalMovements.RemoveRange(temporalMovements);
+        }
+
         var graphicDoc = await _context.GraphicDocumentations
             .FirstOrDefaultAsync(g => g.expediente == expediente);
         if (graphicDoc != null)
@@ -217,6 +241,13 @@ public class CatalogService : ICatalogService
         if (identification != null)
         {
             _context.Identifications.Remove(identification);
+        }
+        
+        var description = await _context.DescriptionClassifications 
+            .FirstOrDefaultAsync(d => d.Expediente == expediente);
+        if (description != null)
+        {
+            _context.DescriptionClassifications.Remove(description);
         }
 
         var adminData = await _context.AdministrativeData
