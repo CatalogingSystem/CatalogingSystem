@@ -104,7 +104,7 @@ public class TemporalMovementService : ITemporalMovementService
     {
         var movement = await _context.TemporalMovements.FindAsync(id);
         if (movement == null) return false;
-
+        await _auditService.LogAuditAsync("DELETE", movement.Id, movement, null);
         _context.TemporalMovements.Remove(movement);
         await _context.SaveChangesAsync();
         return true;

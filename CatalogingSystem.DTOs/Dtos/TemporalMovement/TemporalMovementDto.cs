@@ -4,6 +4,7 @@ namespace CatalogingSystem.DTOs.Dtos;
 
 public class TemporalMovementDto
 {
+    public Guid Id { get; set; }
     public required MovementType MovementType { get; set; }
     public required long Expediente { get; set; }
     public required ApplicantDto Applicant { get; set; }
