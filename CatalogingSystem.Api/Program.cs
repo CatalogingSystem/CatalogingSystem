@@ -142,7 +142,8 @@ builder.Services.AddAutoMapper(
     typeof(AdministrativeDataProfile), 
     typeof(TemporalMovementProfile), 
     typeof(DatingProfile),
-    typeof(ConservationProfile));
+    typeof(ConservationProfile),
+    typeof(DescriptionClassificationProfile));
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BaseDbContext>(options => options.UseNpgsql(connectionString));
@@ -163,6 +164,7 @@ builder.Services.AddScoped<IAdministrativeDataService, AdministrativeDataService
 builder.Services.AddScoped<ITemporalMovementService, TemporalMovementService>();
 builder.Services.AddScoped<IDatingService, DatingService>();
 builder.Services.AddScoped<IConservationService, ConservationService>();
+builder.Services.AddScoped<IDescriptionClassificationService, DescriptionClassificationService>();
 
 var app = builder.Build();
 

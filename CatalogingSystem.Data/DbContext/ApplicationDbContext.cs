@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using CatalogingSystem.Core.Entities;
 using CatalogingSystem.Core.Interfaces;
+using CatalogingSystem.Core.Entities.DescriptionClassification;
 
 namespace CatalogingSystem.Data.DbContext;
 
@@ -23,6 +24,7 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<TemporalMovement> TemporalMovements { get; set; }
     public DbSet<Dating> Datings { get; set; }
     public DbSet<Conservation> Conservations { get; set; }
+    public DbSet<DescriptionClassification> DescriptionClassifications { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -208,6 +210,54 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
 
         modelBuilder.Entity<Conservation>()
             .HasIndex(c => c.Expediente)
+            .IsUnique();
+        
+        // DescriptionClassification configuration
+        modelBuilder.Entity<DescriptionClassification>()
+            .Property(dc => dc.Id).HasDefaultValueSql("gen_random_uuid()");
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .HasOne(dc => dc.ArchivoAdministrativo)
+            .WithOne()
+            .HasForeignKey<DescriptionClassification>(dc => dc.Expediente)
+            .HasPrincipalKey<ArchivoAdministrativo>(a => a.expediente)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .OwnsOne(dc => dc.Decoration);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .OwnsOne(dc => dc.TechnicalCharacteristics);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .OwnsOne(dc => dc.DescriptionDimensions);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .OwnsOne(dc => dc.SignaturesAndMarks);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .OwnsOne(dc => dc.Inscriptions);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .OwnsOne(dc => dc.PlaceOfElaboration);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .OwnsOne(dc => dc.CulturalContext);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .OwnsOne(dc => dc.CollectionProvenance);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .OwnsOne(dc => dc.ReasonedClassification);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .OwnsOne(dc => dc.Bibliography);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .OwnsOne(dc => dc.ObjectHistory);
+
+        modelBuilder.Entity<DescriptionClassification>()
+            .HasIndex(dc => dc.Expediente)
             .IsUnique();
     }
 }
