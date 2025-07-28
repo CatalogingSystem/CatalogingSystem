@@ -16,4 +16,6 @@ public interface ICatalogService
         int page = 1,
         int size = 10);
     Task<bool> DeleteCatalogItem(long expediente);
+    Task<CatalogItemDto?> ExportCatalogItem(long expediente);
+    Task ImportCatalogItems(List<CatalogItemDto> catalogItems, long? nuevoExpediente = null);
 }

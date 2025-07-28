@@ -11,11 +11,34 @@ public class CatalogService : ICatalogService
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private const int MaxPageSize = 100;
+    private readonly IArchivoAdministrativoService _archivoService;
+    private readonly IIdentificationService _identificationService;
+    private readonly IDescriptionClassificationService _descriptionService;
+    private readonly IAdministrativeDataService _adminDataService;
+    private readonly IConservationService _conservationService;
+    private readonly IGraphicDocumentationService _graphicDocService;
+    private readonly IDatingService _datingService;
 
-    public CatalogService(ApplicationDbContext context, IMapper mapper)
+    public CatalogService(
+        ApplicationDbContext context,
+        IMapper mapper,
+        IArchivoAdministrativoService archivoService,
+        IIdentificationService identificationService,
+        IDescriptionClassificationService descriptionService,
+        IAdministrativeDataService adminDataService,
+        IConservationService conservationService,
+        IGraphicDocumentationService graphicDocService,
+        IDatingService datingService)
     {
         _context = context;
         _mapper = mapper;
+        _archivoService = archivoService;
+        _identificationService = identificationService;
+        _descriptionService = descriptionService;
+        _adminDataService = adminDataService;
+        _conservationService = conservationService;
+        _graphicDocService = graphicDocService;
+        _datingService = datingService;
     }
 
     public async Task<PagedResultDto<CatalogItemDto>> GetCatalogItems(int page = 1, int size = 10)
@@ -275,5 +298,135 @@ public class CatalogService : ICatalogService
 
         await _context.SaveChangesAsync();
         return true;
+    }
+    public async Task<CatalogItemDto?> ExportCatalogItem(long expediente)
+    {
+        var result = await (from archivo in _context.ArchivosAdministrativos.AsNoTracking()
+                            join identification in _context.Identifications.AsNoTracking()
+                                on archivo.expediente equals identification.expediente into identGroup
+                            from identification in identGroup.DefaultIfEmpty()
+                            join description in _context.DescriptionClassifications.AsNoTracking()
+                                on archivo.expediente equals description.Expediente into descGroup
+                            from description in descGroup.DefaultIfEmpty()
+                            join adminData in _context.AdministrativeData.AsNoTracking()
+                                on archivo.expediente equals adminData.FileNumber into adminGroup
+                            from adminData in adminGroup.DefaultIfEmpty()
+                            join conservation in _context.Conservations.AsNoTracking()
+                                on archivo.expediente equals conservation.Expediente into consGroup
+                            from conservation in consGroup.DefaultIfEmpty()
+                            join graphicDoc in _context.GraphicDocumentations.AsNoTracking()
+                                on archivo.expediente equals graphicDoc.expediente into graphicGroup
+                            from graphicDoc in graphicGroup.DefaultIfEmpty()
+                            join dating in _context.Datings.AsNoTracking()
+                                on archivo.expediente equals dating.Expediente into datingGroup
+                            from dating in datingGroup.DefaultIfEmpty()
+                            where archivo.expediente == expediente
+                            select new
+                            {
+                                Archivo = archivo,
+                                Identification = identification,
+                                DescriptionClassification = description,
+                                AdministrativeData = adminData,
+                                Conservation = conservation,
+                                GraphicDocumentation = graphicDoc,
+                                Dating = dating
+                            }).FirstOrDefaultAsync();
+
+        if (result == null || result.Archivo == null) return null;
+
+        return new CatalogItemDto
+        {
+            Expediente = result.Archivo.expediente,
+            ArchivoAdministrativo = _mapper.Map<ArchivoAdministrativoDto>(result.Archivo),
+            Identification = result.Identification != null ? _mapper.Map<IdentificationDto>(result.Identification) : null,
+            DescriptionClassification = result.DescriptionClassification != null ? _mapper.Map<DescriptionClassificationDto>(result.DescriptionClassification) : null,
+            AdministrativeData = result.AdministrativeData != null ? _mapper.Map<AdministrativeDataDto>(result.AdministrativeData) : null,
+            Conservation = result.Conservation != null ? _mapper.Map<ConservationDto>(result.Conservation) : null,
+            GraphicDocumentation = result.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(result.GraphicDocumentation) : null,
+            Dating = result.Dating != null ? _mapper.Map<DatingDto>(result.Dating) : null
+        };
+    }
+
+    public async Task ImportCatalogItems(List<CatalogItemDto> catalogItems, long? nuevoExpediente = null)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            var duplicateExpedientes = catalogItems
+                .GroupBy(x => x.Expediente)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (duplicateExpedientes.Any())
+            {
+                throw new InvalidOperationException($"Expedientes duplicados encontrados en el archivo: {string.Join(", ", duplicateExpedientes)}");
+            }
+
+            foreach (var item in catalogItems)
+            {
+                long efectivoExpediente = nuevoExpediente.HasValue ? nuevoExpediente.Value : item.Expediente;
+
+                if (!nuevoExpediente.HasValue)
+                {
+                    var existingArchivo = await _context.ArchivosAdministrativos
+                        .FirstOrDefaultAsync(a => a.expediente == item.Expediente);
+                    if (existingArchivo != null)
+                    {
+                        throw new InvalidOperationException($"El expediente {item.Expediente} ya existe.");
+                    }
+                }
+
+                item.Expediente = efectivoExpediente;
+                if (item.ArchivoAdministrativo != null) item.ArchivoAdministrativo.Expediente = efectivoExpediente;
+                if (item.Identification != null) item.Identification.Expediente = efectivoExpediente;
+                if (item.DescriptionClassification != null) item.DescriptionClassification.Expediente = efectivoExpediente;
+                if (item.AdministrativeData != null) item.AdministrativeData.FileNumber = efectivoExpediente;
+                if (item.Conservation != null) item.Conservation.Expediente = efectivoExpediente;
+                if (item.GraphicDocumentation != null) item.GraphicDocumentation.Expediente = efectivoExpediente;
+                if (item.Dating != null) item.Dating.Expediente = efectivoExpediente;
+
+                var archivo = await _archivoService.CreateArchivoAdministrativo(item.ArchivoAdministrativo);
+
+                if (item.Identification != null)
+                {
+                    await _identificationService.CreateIdentification(item.Identification);
+                }
+
+                if (item.DescriptionClassification != null)
+                {
+                    await _descriptionService.CreateDescriptionClassification(item.DescriptionClassification);
+                }
+
+                if (item.AdministrativeData != null)
+                {
+                    await _adminDataService.CreateAdministrativeData(item.AdministrativeData);
+                }
+
+                if (item.Conservation != null)
+                {
+                    await _conservationService.CreateConservation(item.Conservation);
+                }
+
+                if (item.GraphicDocumentation != null)
+                {
+                    await _graphicDocService.CreateGraphicDocumentation(item.GraphicDocumentation);
+                }
+
+                if (item.Dating != null)
+                {
+                    await _datingService.CreateDating(item.Dating);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 }

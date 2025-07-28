@@ -13,6 +13,9 @@ using System.Text;
 using CatalogingSystem.Api;
 using CatalogingSystem.Core.Interfaces;
 using Cataloging.Api.Swagger;
+using FluentValidation.AspNetCore;
+using CatalogingSystem.DTOs.Dtos;
+using FluentValidation;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -165,6 +168,9 @@ builder.Services.AddScoped<ITemporalMovementService, TemporalMovementService>();
 builder.Services.AddScoped<IDatingService, DatingService>();
 builder.Services.AddScoped<IConservationService, ConservationService>();
 builder.Services.AddScoped<IDescriptionClassificationService, DescriptionClassificationService>();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssemblyContaining<CatalogItemDtoValidator>();
 
 var app = builder.Build();
 

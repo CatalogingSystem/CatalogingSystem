@@ -3,6 +3,7 @@ namespace CatalogingSystem.DTOs.Dtos;
 public class CatalogItemDto
 {
     public long Expediente { get; set; }
+    public long? NuevoExpediente { get; set; }
     public ArchivoAdministrativoDto ArchivoAdministrativo { get; set; }
     public IdentificationDto? Identification { get; set; }
     public DescriptionClassificationDto? DescriptionClassification { get; set; }
