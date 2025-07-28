@@ -1,4 +1,5 @@
 using AutoMapper;
+using CatalogingSystem.Core.Entities;
 using CatalogingSystem.Data.DbContext;
 using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
@@ -243,7 +244,10 @@ public class CatalogService : ICatalogService
             .FirstOrDefaultAsync(a => a.expediente == expediente);
         if (archivo == null) return false;
 
-        // Eliminar todos los TemporalMovement asociados al expediente
+        if (archivo.peticionTransferencia == true)
+        {
+            throw new InvalidOperationException("No se puede eliminar el archivo porque hay una petición de transferencia pendiente.");
+        }
         var temporalMovements = await _context.TemporalMovements
             .Where(tm => tm.Expediente == expediente)
             .ToListAsync();
@@ -329,7 +333,10 @@ public class CatalogService : ICatalogService
                                 AdministrativeData = adminData,
                                 Conservation = conservation,
                                 GraphicDocumentation = graphicDoc,
-                                Dating = dating
+                                Dating = dating,
+                                TemporalMovements = _context.TemporalMovements.AsNoTracking()
+                                    .Where(tm => tm.Expediente == expediente)
+                                    .ToList()
                             }).FirstOrDefaultAsync();
 
         if (result == null || result.Archivo == null) return null;
@@ -343,7 +350,8 @@ public class CatalogService : ICatalogService
             AdministrativeData = result.AdministrativeData != null ? _mapper.Map<AdministrativeDataDto>(result.AdministrativeData) : null,
             Conservation = result.Conservation != null ? _mapper.Map<ConservationDto>(result.Conservation) : null,
             GraphicDocumentation = result.GraphicDocumentation != null ? _mapper.Map<GraphicDocumentationDto>(result.GraphicDocumentation) : null,
-            Dating = result.Dating != null ? _mapper.Map<DatingDto>(result.Dating) : null
+            Dating = result.Dating != null ? _mapper.Map<DatingDto>(result.Dating) : null,
+            TemporalMovements = result.TemporalMovements.Select(tm => _mapper.Map<TemporalMovementDto>(tm)).ToList()
         };
     }
 
@@ -417,6 +425,15 @@ public class CatalogService : ICatalogService
                 if (item.Dating != null)
                 {
                     await _datingService.CreateDating(item.Dating);
+                }
+
+                if (item.TemporalMovements != null && item.TemporalMovements.Any())
+                {
+                    foreach (var movementDto in item.TemporalMovements)
+                    {
+                        movementDto.Expediente = efectivoExpediente;
+                        await _context.TemporalMovements.AddAsync(_mapper.Map<TemporalMovement>(movementDto));
+                    }
                 }
             }
 

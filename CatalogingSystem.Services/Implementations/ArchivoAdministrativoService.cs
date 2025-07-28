@@ -42,6 +42,7 @@ public class ArchivoAdministrativoService : IArchivoAdministrativoService
 
         var archivo = _mapper.Map<ArchivoAdministrativo>(dto);
         archivo.Id = Guid.NewGuid();
+        archivo.peticionTransferencia ??= false;
 
         await _auditService.LogAuditAsync("CREATE", archivo.Id, null, archivo);
 

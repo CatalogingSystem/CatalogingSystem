@@ -86,8 +86,15 @@ public class CatalogController : ControllerBase
     [Authorize(Policy = "ArchivoAdminWrite")]
     public async Task<IActionResult> DeleteCatalogItem(long expediente)
     {
-        var success = await _service.DeleteCatalogItem(expediente);
-        return success ? NoContent() : NotFound();
+        try
+        {
+            var success = await _service.DeleteCatalogItem(expediente);
+            return success ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
     /// <summary>
     /// Exports a single catalog item as a JSON file by expediente.
@@ -136,13 +143,15 @@ public class CatalogController : ControllerBase
 
             try
             {
-                catalogItems = await JsonSerializer.DeserializeAsync<List<CatalogItemDto>>(stream);
+                catalogItems = await JsonSerializer.DeserializeAsync<List<CatalogItemDto>>(stream) ?? new List<CatalogItemDto>();
             }
             catch (JsonException)
             {
                 stream.Position = 0;
                 var singleItem = await JsonSerializer.DeserializeAsync<CatalogItemDto>(stream);
-                catalogItems = new List<CatalogItemDto> { singleItem };
+                catalogItems = singleItem != null
+                    ? new List<CatalogItemDto> { singleItem }
+                    : new List<CatalogItemDto>();
             }
 
             if (catalogItems == null || !catalogItems.Any())
