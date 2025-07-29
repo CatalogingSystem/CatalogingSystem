@@ -6,16 +6,19 @@ using CatalogingSystem.DTOs.Dtos;
 using Microsoft.EntityFrameworkCore;
 using CatalogingSystem.Data.DbContext;
 using CatalogingSystem.Services.Interfaces;
+using System.Text.Json;
 
 public class GraphicDocumentationService : IGraphicDocumentationService
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IAuditService _auditService;
 
-    public GraphicDocumentationService(ApplicationDbContext context, IMapper mapper)
+    public GraphicDocumentationService(ApplicationDbContext context, IMapper mapper, IAuditService auditService)
     {
         _context = context;
         _mapper = mapper;
+        _auditService = auditService;
     }
 
     public async Task<IEnumerable<GraphicDocumentationDto>> GetGraphicDocumentations()
@@ -36,7 +39,6 @@ public class GraphicDocumentationService : IGraphicDocumentationService
 
     public async Task<GraphicDocumentation> CreateGraphicDocumentation(GraphicDocumentationDto dto)
     {
-        // Validar que el expediente exista en ArchivosAdministrativos
         var archivo = await _context.ArchivosAdministrativos
             .FirstOrDefaultAsync(a => a.expediente == dto.Expediente);
         if (archivo == null)
@@ -44,7 +46,6 @@ public class GraphicDocumentationService : IGraphicDocumentationService
             throw new InvalidOperationException($"No existe un archivo administrativo con el número de expediente {dto.Expediente}");
         }
 
-        // Obtener el inventory desde Identification basado en el expediente
         var identification = await _context.Identifications
             .FirstOrDefaultAsync(i => i.expediente == dto.Expediente);
         if (identification == null)
@@ -52,7 +53,6 @@ public class GraphicDocumentationService : IGraphicDocumentationService
             throw new InvalidOperationException($"No existe una identificación asociada al expediente {dto.Expediente}");
         }
 
-        // Validar unicidad del expediente
         bool exists = await _context.GraphicDocumentations
             .AnyAsync(g => g.expediente == dto.Expediente);
         if (exists)
@@ -60,7 +60,6 @@ public class GraphicDocumentationService : IGraphicDocumentationService
             throw new InvalidOperationException($"Ya existe una documentación gráfica para el expediente {dto.Expediente}");
         }
 
-        // Validar que, si se proporcionan imágenes, haya al menos una
         if (dto.ImageUrls != null && !dto.ImageUrls.Any())
         {
             throw new InvalidOperationException("Si se proporcionan imágenes, debe haber al menos una URL válida.");
@@ -71,6 +70,7 @@ public class GraphicDocumentationService : IGraphicDocumentationService
         graphicDoc.inventory = identification.inventory;
 
         _context.GraphicDocumentations.Add(graphicDoc);
+        await _auditService.LogAuditAsync("CREATE", graphicDoc.Id, null, graphicDoc); // Auditoría después de agregar, antes de guardar
         await _context.SaveChangesAsync();
 
         return graphicDoc;
@@ -81,24 +81,25 @@ public class GraphicDocumentationService : IGraphicDocumentationService
         var graphicDoc = await _context.GraphicDocumentations
             .FirstOrDefaultAsync(g => g.expediente == expediente);
         if (graphicDoc == null) return false;
-
-        // Obtener el inventory desde Identification basado en el expediente
         var identification = await _context.Identifications
             .FirstOrDefaultAsync(i => i.expediente == expediente);
         if (identification == null)
         {
             throw new InvalidOperationException($"No existe una identificación asociada al expediente {expediente}");
         }
-
-        // Validar que, si se proporcionan imágenes, haya al menos una
         if (dto.ImageUrls != null && !dto.ImageUrls.Any())
         {
             throw new InvalidOperationException("Si se proporcionan imágenes, debe haber al menos una URL válida.");
         }
+        var oldDataJson = JsonSerializer.Serialize(graphicDoc);
+        var oldData = JsonSerializer.Deserialize<GraphicDocumentation>(oldDataJson);
+        
 
         _mapper.Map(dto, graphicDoc);
         graphicDoc.inventory = identification.inventory;
-
+        
+        await _auditService.LogAuditAsync("UPDATE", graphicDoc.Id, oldData, graphicDoc);
+        
         await _context.SaveChangesAsync();
         return true;
     }

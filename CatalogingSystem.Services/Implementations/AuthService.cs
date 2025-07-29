@@ -45,7 +45,9 @@ public class AuthService : IAuthService
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim("tenantId", user.TenantId),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
+            // new Claim("username", user.UserName ?? string.Empty)
         };
 
         foreach (var role in roles)

@@ -21,7 +21,7 @@ public class TenantResolver
 
         if (context.Request.Path.StartsWithSegments("/Tenants") || 
             context.Request.Path.StartsWithSegments("/SuperDirector") ||
-            context.Request.Path.Value.EndsWith("/Auth/super-login"))
+            context.Request.Path.StartsWithSegments("/Auth/super-login"))
         {
             await _next(context);
             return;

@@ -13,5 +13,7 @@ public class GraphicDocumentationProfile : Profile
         CreateMap<GraphicDocumentation, GraphicDocumentationDto>();
         CreateMap<UpdateGraphicDocumentationDto, GraphicDocumentation>()
             .ForMember(dest => dest.inventory, opt => opt.Ignore());
+        CreateMap<Dimensions, Dimensions>();
+        CreateMap<ImageAuthor, ImageAuthor>();
     }
 }
