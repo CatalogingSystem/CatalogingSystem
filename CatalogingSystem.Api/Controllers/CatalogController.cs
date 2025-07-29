@@ -102,7 +102,7 @@ public class CatalogController : ControllerBase
     /// <param name="expediente">The expediente number.</param>
     /// <returns>A JSON file containing the catalog item, or NotFound if the expediente does not exist.</returns>
     [HttpGet("export/{expediente:long}")]
-    [Authorize(Policy = "ArchivoAdminRead")]
+    [Authorize(Roles = "Director")]
     public async Task<IActionResult> ExportCatalog(long expediente)
     {
         var catalogItem = await _service.ExportCatalogItem(expediente);
@@ -123,7 +123,7 @@ public class CatalogController : ControllerBase
     /// <param name="nuevoExpediente">Optional new expediente number to use instead of the one in the JSON.</param>
     /// <returns>NoContent if successful; otherwise, BadRequest with validation errors.</returns>
     [HttpPost("import")]
-    [Authorize(Policy = "ArchivoAdminWrite")]
+    [Authorize(Roles = "Director")]
     public async Task<IActionResult> ImportCatalog(IFormFile file, [FromQuery] long? nuevoExpediente = null)
     {
         if (file == null || file.Length == 0)
