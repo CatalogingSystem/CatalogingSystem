@@ -25,6 +25,7 @@ public partial class ApplicationDbContext : IdentityDbContext<User>
     public DbSet<Dating> Datings { get; set; }
     public DbSet<Conservation> Conservations { get; set; }
     public DbSet<DescriptionClassification> DescriptionClassifications { get; set; }
+    public DbSet<TenantCustomization> TenantCustomizations { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

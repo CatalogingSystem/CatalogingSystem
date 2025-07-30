@@ -146,7 +146,8 @@ builder.Services.AddAutoMapper(
     typeof(TemporalMovementProfile), 
     typeof(DatingProfile),
     typeof(ConservationProfile),
-    typeof(DescriptionClassificationProfile));
+    typeof(DescriptionClassificationProfile), 
+    typeof(TenantCustomizationProfile));
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BaseDbContext>(options => options.UseNpgsql(connectionString));
@@ -171,6 +172,7 @@ builder.Services.AddScoped<IDescriptionClassificationService, DescriptionClassif
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<CatalogItemDtoValidator>();
+builder.Services.AddScoped<ITenantCustomizationService, TenantCustomizationService>();
 
 var app = builder.Build();
 
