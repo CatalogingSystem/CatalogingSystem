@@ -39,10 +39,13 @@ public class AuditLogService : IAuditLogService
 
         var query = _context.AuditLogs.AsNoTracking()
             .Where(a => a.TenantId == _tenantService.TenantId);
-
         if (!string.IsNullOrEmpty(tableName))
         {
             query = query.Where(a => EF.Functions.ILike(a.TableName, $"%{tableName}%"));
+        }
+        else
+        {
+            query = query.Where(a => a.TableName != "TemporalMovement");
         }
 
         if (!string.IsNullOrEmpty(operation))
