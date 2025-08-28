@@ -1,4 +1,5 @@
 using FluentValidation;
+
 namespace CatalogingSystem.DTOs.Dtos;
 
 public class DatingValidator : AbstractValidator<DatingDto>

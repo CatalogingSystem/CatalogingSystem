@@ -1,4 +1,5 @@
 using FluentValidation;
+
 namespace CatalogingSystem.DTOs.Dtos;
 
 public class CatalogItemDtoValidator : AbstractValidator<CatalogItemDto>
@@ -6,10 +7,12 @@ public class CatalogItemDtoValidator : AbstractValidator<CatalogItemDto>
     public CatalogItemDtoValidator()
     {
         RuleFor(x => x.Expediente)
-            .GreaterThan(0).WithMessage("El expediente debe ser mayor que cero.");
+            .GreaterThan(0)
+            .WithMessage("El expediente debe ser mayor que cero.");
 
         RuleFor(x => x.ArchivoAdministrativo)
-            .NotNull().WithMessage("ArchivoAdministrativo es requerido.")
+            .NotNull()
+            .WithMessage("ArchivoAdministrativo es requerido.")
             .SetValidator(new ArchivoAdministrativoDtoValidator());
 
         RuleFor(x => x.Identification)
@@ -32,8 +35,6 @@ public class CatalogItemDtoValidator : AbstractValidator<CatalogItemDto>
             .SetValidator(new GraphicDocumentationValidator())
             .When(x => x.GraphicDocumentation != null);
 
-        RuleFor(x => x.Dating)
-            .SetValidator(new DatingValidator())
-            .When(x => x.Dating != null);
+        RuleFor(x => x.Dating).SetValidator(new DatingValidator()).When(x => x.Dating != null);
     }
 }

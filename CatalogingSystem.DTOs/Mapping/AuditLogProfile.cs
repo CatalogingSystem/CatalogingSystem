@@ -9,6 +9,9 @@ public class AuditLogProfile : Profile
     public AuditLogProfile()
     {
         CreateMap<AuditLog, AuditLogDto>()
-            .ForMember(dest => dest.ActionTimestamp, opt => opt.MapFrom(src => src.ActionTimestamp.AddHours(-4)));
+            .ForMember(
+                dest => dest.ActionTimestamp,
+                opt => opt.MapFrom(src => src.ActionTimestamp.AddHours(-4))
+            );
     }
 }

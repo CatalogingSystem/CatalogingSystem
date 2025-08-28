@@ -1,4 +1,5 @@
 namespace CatalogingSystem.Core.Entities.DescriptionClassification;
+
 public class Inscriptions
 {
     public string? Location { get; set; }

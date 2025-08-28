@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using CatalogingSystem.Data.DbContext;
 using CatalogingSystem.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CatalogingSystem.Api.Controllers;
@@ -21,8 +21,9 @@ public class SuperDirectorController : ControllerBase
     [HttpPut("update")]
     public async Task<IActionResult> Update([FromBody] UpdateSuperDirectorRequestDto request)
     {
-        var superDirector = await _baseDbContext.SuperDirectorUsers
-            .FirstOrDefaultAsync(u => u.UserName == "superadmin");
+        var superDirector = await _baseDbContext.SuperDirectorUsers.FirstOrDefaultAsync(u =>
+            u.UserName == "superadmin"
+        );
         if (superDirector == null)
         {
             return NotFound(new { message = "Super Director no encontrado." });

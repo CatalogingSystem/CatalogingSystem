@@ -8,4 +8,4 @@ public class Tenant
     public string? Description { get; set; }
     public string? ConnectionString { get; set; }
     public string? ImageUrl { get; set; }
-}   
+}

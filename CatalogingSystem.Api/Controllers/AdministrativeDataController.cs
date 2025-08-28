@@ -34,12 +34,18 @@ public class AdministrativeDataController : ControllerBase
 
     [HttpPost]
     [Authorize(Policy = "ArchivoAdminWrite")]
-    public async Task<ActionResult<AdministrativeData>> PostAdministrativeData(AdministrativeDataDto dto)
+    public async Task<ActionResult<AdministrativeData>> PostAdministrativeData(
+        AdministrativeDataDto dto
+    )
     {
         try
         {
             var adminData = await _service.CreateAdministrativeData(dto);
-            return CreatedAtAction(nameof(GetAdministrativeData), new { fileNumber = adminData.FileNumber }, adminData);
+            return CreatedAtAction(
+                nameof(GetAdministrativeData),
+                new { fileNumber = adminData.FileNumber },
+                adminData
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -49,7 +55,10 @@ public class AdministrativeDataController : ControllerBase
 
     [HttpPut("{fileNumber:long}")]
     [Authorize(Policy = "ArchivoAdminWrite")]
-    public async Task<IActionResult> PutAdministrativeData(long fileNumber, UpdateAdministrativeDataDto dto)
+    public async Task<IActionResult> PutAdministrativeData(
+        long fileNumber,
+        UpdateAdministrativeDataDto dto
+    )
     {
         var success = await _service.UpdateAdministrativeData(fileNumber, dto);
         return success ? NoContent() : NotFound();

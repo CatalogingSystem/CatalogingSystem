@@ -23,7 +23,9 @@ public class DescriptionClassificationController : ControllerBase
     /// <returns>A list of description classifications.</returns>
     [HttpGet]
     [Authorize(Policy = "ArchivoAdminRead")]
-    public async Task<ActionResult<IEnumerable<DescriptionClassificationDto>>> GetDescriptionClassifications()
+    public async Task<
+        ActionResult<IEnumerable<DescriptionClassificationDto>>
+    > GetDescriptionClassifications()
     {
         return Ok(await _service.GetDescriptionClassifications());
     }
@@ -35,7 +37,9 @@ public class DescriptionClassificationController : ControllerBase
     /// <returns>The description classification if found; otherwise, NotFound.</returns>
     [HttpGet("{expediente:long}")]
     [Authorize(Policy = "ArchivoAdminRead")]
-    public async Task<ActionResult<DescriptionClassificationDto>> GetDescriptionClassification(long expediente)
+    public async Task<ActionResult<DescriptionClassificationDto>> GetDescriptionClassification(
+        long expediente
+    )
     {
         var description = await _service.GetDescriptionClassification(expediente);
         return description == null ? NotFound() : Ok(description);
@@ -48,12 +52,18 @@ public class DescriptionClassificationController : ControllerBase
     /// <returns>The created description classification with its location.</returns>
     [HttpPost]
     [Authorize(Policy = "ArchivoAdminWrite")]
-    public async Task<ActionResult<DescriptionClassification>> PostDescriptionClassification(DescriptionClassificationDto dto)
+    public async Task<ActionResult<DescriptionClassification>> PostDescriptionClassification(
+        DescriptionClassificationDto dto
+    )
     {
         try
         {
             var description = await _service.CreateDescriptionClassification(dto);
-            return CreatedAtAction(nameof(GetDescriptionClassification), new { expediente = description.Expediente }, description);
+            return CreatedAtAction(
+                nameof(GetDescriptionClassification),
+                new { expediente = description.Expediente },
+                description
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -69,7 +79,10 @@ public class DescriptionClassificationController : ControllerBase
     /// <returns>NoContent if successful; otherwise, NotFound.</returns>
     [HttpPut("{expediente:long}")]
     [Authorize(Policy = "ArchivoAdminWrite")]
-    public async Task<IActionResult> PutDescriptionClassification(long expediente, UpdateDescriptionClassificationDto dto)
+    public async Task<IActionResult> PutDescriptionClassification(
+        long expediente,
+        UpdateDescriptionClassificationDto dto
+    )
     {
         var success = await _service.UpdateDescriptionClassification(expediente, dto);
         return success ? NoContent() : NotFound();

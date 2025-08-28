@@ -14,7 +14,11 @@ public class TenantCustomizationService : ITenantCustomizationService
     private readonly IMapper _mapper;
     private readonly ICurrentTenantService _tenantService;
 
-    public TenantCustomizationService(ApplicationDbContext context, IMapper mapper, ICurrentTenantService tenantService)
+    public TenantCustomizationService(
+        ApplicationDbContext context,
+        IMapper mapper,
+        ICurrentTenantService tenantService
+    )
     {
         _context = context;
         _mapper = mapper;
@@ -23,8 +27,9 @@ public class TenantCustomizationService : ITenantCustomizationService
 
     public async Task<TenantCustomizationDto?> GetTenantCustomization()
     {
-        var customization = await _context.TenantCustomizations
-            .FirstOrDefaultAsync(c => c.TenantId == _tenantService.TenantId);
+        var customization = await _context.TenantCustomizations.FirstOrDefaultAsync(c =>
+            c.TenantId == _tenantService.TenantId
+        );
         return customization == null ? null : _mapper.Map<TenantCustomizationDto>(customization);
     }
 
@@ -35,8 +40,9 @@ public class TenantCustomizationService : ITenantCustomizationService
             throw new InvalidOperationException("No tenant context available.");
         }
 
-        bool exists = await _context.TenantCustomizations
-            .AnyAsync(c => c.TenantId == _tenantService.TenantId);
+        bool exists = await _context.TenantCustomizations.AnyAsync(c =>
+            c.TenantId == _tenantService.TenantId
+        );
         if (exists)
         {
             throw new InvalidOperationException("Tenant customization already exists.");
@@ -59,9 +65,11 @@ public class TenantCustomizationService : ITenantCustomizationService
             throw new InvalidOperationException("No tenant context available.");
         }
 
-        var customization = await _context.TenantCustomizations
-            .FirstOrDefaultAsync(c => c.TenantId == _tenantService.TenantId);
-        if (customization == null) return false;
+        var customization = await _context.TenantCustomizations.FirstOrDefaultAsync(c =>
+            c.TenantId == _tenantService.TenantId
+        );
+        if (customization == null)
+            return false;
 
         _mapper.Map(dto, customization);
         await _context.SaveChangesAsync();

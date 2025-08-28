@@ -39,7 +39,11 @@ public class DatingController : ControllerBase
         try
         {
             var dating = await _service.CreateDating(dto);
-            return CreatedAtAction(nameof(GetDating), new { expediente = dating.Expediente }, dating);
+            return CreatedAtAction(
+                nameof(GetDating),
+                new { expediente = dating.Expediente },
+                dating
+            );
         }
         catch (InvalidOperationException ex)
         {

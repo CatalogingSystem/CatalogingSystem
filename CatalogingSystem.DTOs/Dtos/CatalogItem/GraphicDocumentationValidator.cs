@@ -1,4 +1,5 @@
 using FluentValidation;
+
 namespace CatalogingSystem.DTOs.Dtos;
 
 public class GraphicDocumentationValidator : AbstractValidator<GraphicDocumentationDto>
@@ -9,12 +10,8 @@ public class GraphicDocumentationValidator : AbstractValidator<GraphicDocumentat
             .GreaterThan(0)
             .WithMessage("Expediente must be a positive number.");
 
-        RuleFor(x => x.Description)
-            .NotEmpty()
-            .WithMessage("Description is required.");
+        RuleFor(x => x.Description).NotEmpty().WithMessage("Description is required.");
 
-        RuleFor(x => x.TechnicalData)
-            .NotEmpty()
-            .WithMessage("TechnicalData is required.");
+        RuleFor(x => x.TechnicalData).NotEmpty().WithMessage("TechnicalData is required.");
     }
 }

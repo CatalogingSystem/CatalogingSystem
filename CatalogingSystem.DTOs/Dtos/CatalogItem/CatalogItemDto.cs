@@ -11,5 +11,6 @@ public class CatalogItemDto
     public ConservationDto? Conservation { get; set; }
     public GraphicDocumentationDto? GraphicDocumentation { get; set; }
     public DatingDto? Dating { get; set; }
-    public List<TemporalMovementDto> TemporalMovements { get; set; } = new List<TemporalMovementDto>();
+    public List<TemporalMovementDto> TemporalMovements { get; set; } =
+        new List<TemporalMovementDto>();
 }

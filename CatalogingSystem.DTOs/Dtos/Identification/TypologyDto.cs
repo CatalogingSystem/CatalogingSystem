@@ -1,4 +1,5 @@
 namespace CatalogingSystem.DTOs.Dtos;
+
 public class TypologyDto
 {
     public string Type { get; set; } = string.Empty;

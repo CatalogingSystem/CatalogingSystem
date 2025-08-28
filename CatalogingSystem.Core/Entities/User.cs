@@ -6,5 +6,5 @@ namespace CatalogingSystem.Core.Entities;
 public class User : IdentityUser
 {
     public string? TenantId { get; set; }
-    public InvestigatorPermissionLevel? PermissionLevel { get; set; } 
+    public InvestigatorPermissionLevel? PermissionLevel { get; set; }
 }

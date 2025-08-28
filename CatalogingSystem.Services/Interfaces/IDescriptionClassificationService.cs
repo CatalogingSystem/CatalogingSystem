@@ -7,7 +7,12 @@ public interface IDescriptionClassificationService
 {
     Task<IEnumerable<DescriptionClassificationDto>> GetDescriptionClassifications();
     Task<DescriptionClassificationDto?> GetDescriptionClassification(long expediente);
-    Task<DescriptionClassification> CreateDescriptionClassification(DescriptionClassificationDto dto);
-    Task<bool> UpdateDescriptionClassification(long expediente, UpdateDescriptionClassificationDto dto);
+    Task<DescriptionClassification> CreateDescriptionClassification(
+        DescriptionClassificationDto dto
+    );
+    Task<bool> UpdateDescriptionClassification(
+        long expediente,
+        UpdateDescriptionClassificationDto dto
+    );
     Task<bool> DeleteDescriptionClassification(long expediente);
 }

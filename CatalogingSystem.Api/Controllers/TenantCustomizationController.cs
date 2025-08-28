@@ -1,10 +1,10 @@
+using System;
+using System.Threading.Tasks;
 using CatalogingSystem.Core.Entities;
 using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace CatalogingSystem.Api.Controllers;
 
@@ -28,7 +28,9 @@ public class TenantCustomizationController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<TenantCustomization>> PostTenantCustomization(TenantCustomizationDto dto)
+    public async Task<ActionResult<TenantCustomization>> PostTenantCustomization(
+        TenantCustomizationDto dto
+    )
     {
         try
         {

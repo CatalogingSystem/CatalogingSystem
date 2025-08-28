@@ -19,9 +19,11 @@ public class TenantResolver
         StringValues tenantIdFromHeader;
         string? tenantId = null;
 
-        if (context.Request.Path.StartsWithSegments("/Tenants") || 
-            context.Request.Path.StartsWithSegments("/SuperDirector") ||
-            context.Request.Path.StartsWithSegments("/Auth/super-login"))
+        if (
+            context.Request.Path.StartsWithSegments("/Tenants")
+            || context.Request.Path.StartsWithSegments("/SuperDirector")
+            || context.Request.Path.StartsWithSegments("/Auth/super-login")
+        )
         {
             await _next(context);
             return;
@@ -46,7 +48,9 @@ public class TenantResolver
             else
             {
                 context.Response.StatusCode = 400;
-                await context.Response.WriteAsync("Header 'tenant' is required for authentication.");
+                await context.Response.WriteAsync(
+                    "Header 'tenant' is required for authentication."
+                );
                 return;
             }
 

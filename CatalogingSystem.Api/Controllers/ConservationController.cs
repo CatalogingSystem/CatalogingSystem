@@ -39,7 +39,11 @@ public class ConservationController : ControllerBase
         try
         {
             var conservation = await _service.CreateConservation(dto);
-            return CreatedAtAction(nameof(GetConservation), new { expediente = conservation.Expediente }, conservation);
+            return CreatedAtAction(
+                nameof(GetConservation),
+                new { expediente = conservation.Expediente },
+                conservation
+            );
         }
         catch (InvalidOperationException ex)
         {

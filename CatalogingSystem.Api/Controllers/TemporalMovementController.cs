@@ -26,10 +26,13 @@ public class TemporalMovementController : ControllerBase
     /// <returns>A paginated list of temporal movements with metadata.</returns>
     [HttpGet("expediente/{expediente:long}")]
     [Authorize(Policy = "ArchivoAdminRead")]
-    public async Task<ActionResult<PagedResultDto<TemporalMovementDto>>> GetTemporalMovementsByExpediente(
+    public async Task<
+        ActionResult<PagedResultDto<TemporalMovementDto>>
+    > GetTemporalMovementsByExpediente(
         long expediente,
         [FromQuery] int page = 1,
-        [FromQuery] int size = 10)
+        [FromQuery] int size = 10
+    )
     {
         var result = await _service.GetTemporalMovementsByExpediente(expediente, page, size);
         return Ok(result);

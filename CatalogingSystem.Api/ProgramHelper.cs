@@ -11,15 +11,16 @@ public static class ProgramHelper
         using var scope = serviceProvider.CreateScope();
         var baseDbContext = scope.ServiceProvider.GetRequiredService<BaseDbContext>();
 
-        var superDirector = await baseDbContext.SuperDirectorUsers
-            .FirstOrDefaultAsync(u => u.UserName == "superadmin");
+        var superDirector = await baseDbContext.SuperDirectorUsers.FirstOrDefaultAsync(u =>
+            u.UserName == "superadmin"
+        );
         if (superDirector == null)
         {
             superDirector = new SuperDirectorUser
             {
                 Id = Guid.NewGuid().ToString(),
                 UserName = "superadmin",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("SuperAdmin123!")
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("SuperAdmin123!"),
             };
             baseDbContext.SuperDirectorUsers.Add(superDirector);
             await baseDbContext.SaveChangesAsync();

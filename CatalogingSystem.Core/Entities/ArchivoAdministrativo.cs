@@ -1,4 +1,5 @@
 namespace CatalogingSystem.Core.Entities;
+
 using CatalogingSystem.Core.Enums;
 
 public class ArchivoAdministrativo

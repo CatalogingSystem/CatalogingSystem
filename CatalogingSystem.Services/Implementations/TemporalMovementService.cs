@@ -15,21 +15,32 @@ public class TemporalMovementService : ITemporalMovementService
     private readonly IAuditService _auditService;
     private const int MaxPageSize = 50;
 
-    public TemporalMovementService(ApplicationDbContext context, IMapper mapper, IAuditService auditService)
+    public TemporalMovementService(
+        ApplicationDbContext context,
+        IMapper mapper,
+        IAuditService auditService
+    )
     {
         _context = context;
         _mapper = mapper;
         _auditService = auditService;
     }
 
-    public async Task<PagedResultDto<TemporalMovementDto>> GetTemporalMovementsByExpediente(long expediente, int page = 1, int size = 10)
+    public async Task<PagedResultDto<TemporalMovementDto>> GetTemporalMovementsByExpediente(
+        long expediente,
+        int page = 1,
+        int size = 10
+    )
     {
-        if (page < 1) page = 1;
-        if (size < 1) size = 10;
-        if (size > MaxPageSize) size = MaxPageSize;
+        if (page < 1)
+            page = 1;
+        if (size < 1)
+            size = 10;
+        if (size > MaxPageSize)
+            size = MaxPageSize;
 
-        var query = _context.TemporalMovements
-            .AsNoTracking()
+        var query = _context
+            .TemporalMovements.AsNoTracking()
             .Where(m => m.Expediente == expediente)
             .Include(m => m.ArchivoAdministrativo);
 
@@ -49,14 +60,16 @@ public class TemporalMovementService : ITemporalMovementService
             TotalItems = totalItems,
             TotalPages = (int)Math.Ceiling(totalItems / (double)size),
             CurrentPage = page,
-            PageSize = size
+            PageSize = size,
         };
     }
 
-    public async Task<IEnumerable<TemporalMovementDto>> GetTemporalMovementsByExpediente(long expediente)
+    public async Task<IEnumerable<TemporalMovementDto>> GetTemporalMovementsByExpediente(
+        long expediente
+    )
     {
-        var movements = await _context.TemporalMovements
-            .Where(m => m.Expediente == expediente)
+        var movements = await _context
+            .TemporalMovements.Where(m => m.Expediente == expediente)
             .ToListAsync();
         return _mapper.Map<IEnumerable<TemporalMovementDto>>(movements);
     }
@@ -69,11 +82,14 @@ public class TemporalMovementService : ITemporalMovementService
 
     public async Task<TemporalMovement> CreateTemporalMovement(TemporalMovementDto dto)
     {
-        var archivo = await _context.ArchivosAdministrativos
-            .FirstOrDefaultAsync(a => a.expediente == dto.Expediente);
+        var archivo = await _context.ArchivosAdministrativos.FirstOrDefaultAsync(a =>
+            a.expediente == dto.Expediente
+        );
         if (archivo == null)
         {
-            throw new InvalidOperationException($"No existe un archivo administrativo con el número de expediente {dto.Expediente}");
+            throw new InvalidOperationException(
+                $"No existe un archivo administrativo con el número de expediente {dto.Expediente}"
+            );
         }
 
         var movement = _mapper.Map<TemporalMovement>(dto);
@@ -89,7 +105,8 @@ public class TemporalMovementService : ITemporalMovementService
     public async Task<bool> UpdateTemporalMovement(Guid id, UpdateTemporalMovementDto dto)
     {
         var movement = await _context.TemporalMovements.FindAsync(id);
-        if (movement == null) return false;
+        if (movement == null)
+            return false;
 
         var oldDataJson = JsonSerializer.Serialize(movement);
         var oldData = JsonSerializer.Deserialize<TemporalMovement>(oldDataJson);
@@ -103,7 +120,8 @@ public class TemporalMovementService : ITemporalMovementService
     public async Task<bool> DeleteTemporalMovement(Guid id)
     {
         var movement = await _context.TemporalMovements.FindAsync(id);
-        if (movement == null) return false;
+        if (movement == null)
+            return false;
         await _auditService.LogAuditAsync("DELETE", movement.Id, movement, null);
         _context.TemporalMovements.Remove(movement);
         await _context.SaveChangesAsync();

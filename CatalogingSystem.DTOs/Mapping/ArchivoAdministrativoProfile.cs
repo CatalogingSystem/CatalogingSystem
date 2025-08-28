@@ -1,7 +1,9 @@
 namespace CatalogingSystem.DTOs.Mapping;
+
+using AutoMapper;
 using CatalogingSystem.Core.Entities;
 using CatalogingSystem.DTOs.Dtos;
-using AutoMapper;
+
 public class ArchivoAdministrativoProfile : Profile
 {
     public ArchivoAdministrativoProfile()

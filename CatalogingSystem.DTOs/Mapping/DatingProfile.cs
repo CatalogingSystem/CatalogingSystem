@@ -8,11 +8,9 @@ public class DatingProfile : Profile
 {
     public DatingProfile()
     {
-        CreateMap<DatingDto, Dating>()
-            .ForMember(dest => dest.Inventory, opt => opt.Ignore());
+        CreateMap<DatingDto, Dating>().ForMember(dest => dest.Inventory, opt => opt.Ignore());
         CreateMap<Dating, DatingDto>();
-        CreateMap<UpdateDatingDto, Dating>()
-            .ForMember(dest => dest.Inventory, opt => opt.Ignore());
+        CreateMap<UpdateDatingDto, Dating>().ForMember(dest => dest.Inventory, opt => opt.Ignore());
         CreateMap<SimpleDateDto, SimpleDate>();
         CreateMap<SimpleDate, SimpleDateDto>();
         CreateMap<DateRangeDto, DateRange>();

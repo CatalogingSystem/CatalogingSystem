@@ -1,4 +1,5 @@
 using FluentValidation;
+
 namespace CatalogingSystem.DTOs.Dtos;
 
 public class IdentificationValidator : AbstractValidator<IdentificationDto>
@@ -21,12 +22,8 @@ public class IdentificationValidator : AbstractValidator<IdentificationDto>
             .NotEmpty()
             .WithMessage("GenericClassification is required.");
 
-        RuleFor(x => x.ObjectName)
-            .NotEmpty()
-            .WithMessage("ObjectName is required.");
+        RuleFor(x => x.ObjectName).NotEmpty().WithMessage("ObjectName is required.");
 
-        RuleFor(x => x.Observations)
-            .NotEmpty()
-            .WithMessage("Observations is required.");
+        RuleFor(x => x.Observations).NotEmpty().WithMessage("Observations is required.");
     }
 }

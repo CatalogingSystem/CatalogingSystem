@@ -1,21 +1,21 @@
+using System.Text;
+using Cataloging.Api.Swagger;
+using CatalogingSystem.Api;
+using CatalogingSystem.Api.Middleware;
+using CatalogingSystem.Core.Entities;
+using CatalogingSystem.Core.Interfaces;
+using CatalogingSystem.Data.DbContext;
+using CatalogingSystem.DTOs.Dtos;
+using CatalogingSystem.DTOs.Mapping;
+using CatalogingSystem.Services.Implementations;
+using CatalogingSystem.Services.Interfaces;
+using DotNetEnv;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using CatalogingSystem.Api.Middleware;
-using CatalogingSystem.Core.Entities;
-using CatalogingSystem.Data.DbContext;
-using CatalogingSystem.Services.Implementations;
-using CatalogingSystem.Services.Interfaces;
-using CatalogingSystem.DTOs.Mapping;
-using DotNetEnv;
-using System.Text;
-using CatalogingSystem.Api;
-using CatalogingSystem.Core.Interfaces;
-using Cataloging.Api.Swagger;
-using FluentValidation.AspNetCore;
-using CatalogingSystem.DTOs.Dtos;
-using FluentValidation;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -40,53 +40,61 @@ Console.WriteLine($"Jwt__Key: {jwtKey}");
 Console.WriteLine($"Jwt__Issuer: {jwtIssuer}");
 Console.WriteLine($"Jwt__Audience: {jwtAudience}");
 
-if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
+if (
+    string.IsNullOrEmpty(jwtKey)
+    || string.IsNullOrEmpty(jwtIssuer)
+    || string.IsNullOrEmpty(jwtAudience)
+)
 {
-    throw new InvalidOperationException("JWT configuration is missing. Ensure Jwt__Key, Jwt__Issuer, and Jwt__Audience are set in .env.");
+    throw new InvalidOperationException(
+        "JWT configuration is missing. Ensure Jwt__Key, Jwt__Issuer, and Jwt__Audience are set in .env."
+    );
 }
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
+    options.AddPolicy(
+        name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173")
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-        });
+            policy.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
+        }
+    );
 });
 
 // Add ASP.NET Core Identity
-builder.Services.AddIdentity<User, IdentityRole>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireLowercase = false;
-})
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders()
-.AddRoleManager<RoleManager<IdentityRole>>();
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+builder
+    .Services.AddIdentity<User, IdentityRole>(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-    };
-});
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireLowercase = false;
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders()
+    .AddRoleManager<RoleManager<IdentityRole>>();
+
+builder
+    .Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        };
+    });
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -94,60 +102,83 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "CatalogingSystem API", Version = "v1" });
+    c.SwaggerDoc(
+        "v1",
+        new Microsoft.OpenApi.Models.OpenApiInfo { Title = "CatalogingSystem API", Version = "v1" }
+    );
     c.OperationFilter<AddTenantHeaderParameter>();
-    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-    {
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "Please enter JWT with Bearer into field (e.g., Bearer {token})",
-        Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
+    c.AddSecurityDefinition(
+        "Bearer",
+        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
         {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Description = "Please enter JWT with Bearer into field (e.g., Bearer {token})",
+            Name = "Authorization",
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+            Scheme = "Bearer",
         }
-    });
+    );
+    c.AddSecurityRequirement(
+        new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
+            {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    {
+                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                        Id = "Bearer",
+                    },
+                },
+                new string[] { }
+            },
+        }
+    );
 });
 builder.Services.AddAuthorization(options =>
 {
     // Política para solo lectura (GET)
-    options.AddPolicy("ArchivoAdminRead", policy =>
-        policy.RequireAssertion(context =>
-            context.User.IsInRole("Director") ||
-            (context.User.IsInRole("Investigador") &&
-             (context.User.HasClaim("PermissionLevel", "ReadOnly") ||
-              context.User.HasClaim("PermissionLevel", "ReadWrite")))));
+    options.AddPolicy(
+        "ArchivoAdminRead",
+        policy =>
+            policy.RequireAssertion(context =>
+                context.User.IsInRole("Director")
+                || (
+                    context.User.IsInRole("Investigador")
+                    && (
+                        context.User.HasClaim("PermissionLevel", "ReadOnly")
+                        || context.User.HasClaim("PermissionLevel", "ReadWrite")
+                    )
+                )
+            )
+    );
 
     // Política para lectura y escritura (GET, POST, PUT, DELETE)
-    options.AddPolicy("ArchivoAdminWrite", policy =>
-        policy.RequireAssertion(context =>
-            context.User.IsInRole("Director") ||
-            (context.User.IsInRole("Investigador") &&
-             context.User.HasClaim("PermissionLevel", "ReadWrite"))));
+    options.AddPolicy(
+        "ArchivoAdminWrite",
+        policy =>
+            policy.RequireAssertion(context =>
+                context.User.IsInRole("Director")
+                || (
+                    context.User.IsInRole("Investigador")
+                    && context.User.HasClaim("PermissionLevel", "ReadWrite")
+                )
+            )
+    );
 });
 
 builder.Services.AddAutoMapper(
-    typeof(ArchivoAdministrativoProfile), 
-    typeof(IdentificationProfile), 
-    typeof(GraphicDocumentationProfile), 
-    typeof(CatalogItemProfile), 
-    typeof(AdministrativeDataProfile), 
-    typeof(TemporalMovementProfile), 
+    typeof(ArchivoAdministrativoProfile),
+    typeof(IdentificationProfile),
+    typeof(GraphicDocumentationProfile),
+    typeof(CatalogItemProfile),
+    typeof(AdministrativeDataProfile),
+    typeof(TemporalMovementProfile),
     typeof(DatingProfile),
     typeof(ConservationProfile),
-    typeof(DescriptionClassificationProfile), 
-    typeof(TenantCustomizationProfile));
+    typeof(DescriptionClassificationProfile),
+    typeof(TenantCustomizationProfile)
+);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BaseDbContext>(options => options.UseNpgsql(connectionString));

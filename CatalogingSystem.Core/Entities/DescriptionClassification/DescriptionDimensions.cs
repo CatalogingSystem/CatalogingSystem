@@ -1,4 +1,5 @@
 namespace CatalogingSystem.Core.Entities.DescriptionClassification;
+
 public class DescriptionDimensions
 {
     public string? Length { get; set; }

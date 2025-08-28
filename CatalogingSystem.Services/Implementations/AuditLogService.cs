@@ -1,5 +1,7 @@
 namespace CatalogingSystem.Services.Implementations;
 
+using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using CatalogingSystem.Core.Entities;
 using CatalogingSystem.Core.Interfaces;
@@ -8,8 +10,6 @@ using CatalogingSystem.DTOs;
 using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
 
 public class AuditLogService : IAuditLogService
 {
@@ -18,7 +18,11 @@ public class AuditLogService : IAuditLogService
     private readonly ICurrentTenantService _tenantService;
     private const int MaxPageSize = 100;
 
-    public AuditLogService(ApplicationDbContext context, IMapper mapper, ICurrentTenantService tenantService)
+    public AuditLogService(
+        ApplicationDbContext context,
+        IMapper mapper,
+        ICurrentTenantService tenantService
+    )
     {
         _context = context;
         _mapper = mapper;
@@ -31,13 +35,18 @@ public class AuditLogService : IAuditLogService
         string? username = null,
         long? expediente = null,
         int page = 1,
-        int size = 10)
+        int size = 10
+    )
     {
-        if (page < 1) page = 1;
-        if (size < 1) size = 10;
-        if (size > MaxPageSize) size = MaxPageSize;
+        if (page < 1)
+            page = 1;
+        if (size < 1)
+            size = 10;
+        if (size > MaxPageSize)
+            size = MaxPageSize;
 
-        var query = _context.AuditLogs.AsNoTracking()
+        var query = _context
+            .AuditLogs.AsNoTracking()
             .Where(a => a.TenantId == _tenantService.TenantId);
         if (!string.IsNullOrEmpty(tableName))
         {
@@ -79,7 +88,7 @@ public class AuditLogService : IAuditLogService
             TotalItems = totalItems,
             TotalPages = (int)Math.Ceiling(totalItems / (double)size),
             CurrentPage = page,
-            PageSize = size
+            PageSize = size,
         };
     }
 }

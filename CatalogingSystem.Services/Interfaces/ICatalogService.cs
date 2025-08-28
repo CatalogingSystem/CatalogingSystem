@@ -1,8 +1,8 @@
 namespace CatalogingSystem.Services.Interfaces;
 
-using CatalogingSystem.DTOs.Dtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CatalogingSystem.DTOs.Dtos;
 
 public interface ICatalogService
 {
@@ -14,7 +14,8 @@ public interface ICatalogService
         string? titleName,
         string? genericClassification,
         int page = 1,
-        int size = 10);
+        int size = 10
+    );
     Task<bool> DeleteCatalogItem(long expediente);
     Task<CatalogItemDto?> ExportCatalogItem(long expediente);
     Task ImportCatalogItems(List<CatalogItemDto> catalogItems, long? nuevoExpediente = null);

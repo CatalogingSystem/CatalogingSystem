@@ -14,7 +14,11 @@ public class AdministrativeDataService : IAdministrativeDataService
     private readonly IMapper _mapper;
     private readonly IAuditService _auditService;
 
-    public AdministrativeDataService(ApplicationDbContext context, IMapper mapper, IAuditService auditService)
+    public AdministrativeDataService(
+        ApplicationDbContext context,
+        IMapper mapper,
+        IAuditService auditService
+    )
     {
         _context = context;
         _mapper = mapper;
@@ -23,34 +27,40 @@ public class AdministrativeDataService : IAdministrativeDataService
 
     public async Task<IEnumerable<AdministrativeDataDto>> GetAdministrativeData()
     {
-        var adminData = await _context.AdministrativeData
-            .Include(ad => ad.ArchivoAdministrativo)
+        var adminData = await _context
+            .AdministrativeData.Include(ad => ad.ArchivoAdministrativo)
             .ToListAsync();
         return _mapper.Map<IEnumerable<AdministrativeDataDto>>(adminData);
     }
 
     public async Task<AdministrativeDataDto?> GetAdministrativeData(long fileNumber)
     {
-        var adminData = await _context.AdministrativeData
-            .Include(ad => ad.ArchivoAdministrativo)
+        var adminData = await _context
+            .AdministrativeData.Include(ad => ad.ArchivoAdministrativo)
             .FirstOrDefaultAsync(ad => ad.FileNumber == fileNumber);
         return adminData == null ? null : _mapper.Map<AdministrativeDataDto>(adminData);
     }
 
     public async Task<AdministrativeData> CreateAdministrativeData(AdministrativeDataDto dto)
     {
-        var archivo = await _context.ArchivosAdministrativos
-            .FirstOrDefaultAsync(a => a.expediente == dto.FileNumber);
+        var archivo = await _context.ArchivosAdministrativos.FirstOrDefaultAsync(a =>
+            a.expediente == dto.FileNumber
+        );
         if (archivo == null)
         {
-            throw new InvalidOperationException($"No administrative file exists with file number {dto.FileNumber}");
+            throw new InvalidOperationException(
+                $"No administrative file exists with file number {dto.FileNumber}"
+            );
         }
 
-        bool exists = await _context.AdministrativeData
-            .AnyAsync(ad => ad.FileNumber == dto.FileNumber);
+        bool exists = await _context.AdministrativeData.AnyAsync(ad =>
+            ad.FileNumber == dto.FileNumber
+        );
         if (exists)
         {
-            throw new InvalidOperationException($"Administrative data already exists for file number {dto.FileNumber}");
+            throw new InvalidOperationException(
+                $"Administrative data already exists for file number {dto.FileNumber}"
+            );
         }
 
         var adminData = _mapper.Map<AdministrativeData>(dto);
@@ -63,11 +73,16 @@ public class AdministrativeDataService : IAdministrativeDataService
         return adminData;
     }
 
-    public async Task<bool> UpdateAdministrativeData(long fileNumber, UpdateAdministrativeDataDto dto)
+    public async Task<bool> UpdateAdministrativeData(
+        long fileNumber,
+        UpdateAdministrativeDataDto dto
+    )
     {
-        var adminData = await _context.AdministrativeData
-            .FirstOrDefaultAsync(ad => ad.FileNumber == fileNumber);
-        if (adminData == null) return false;
+        var adminData = await _context.AdministrativeData.FirstOrDefaultAsync(ad =>
+            ad.FileNumber == fileNumber
+        );
+        if (adminData == null)
+            return false;
 
         var oldDataJson = JsonSerializer.Serialize(adminData);
         var oldData = JsonSerializer.Deserialize<AdministrativeData>(oldDataJson);
@@ -80,9 +95,11 @@ public class AdministrativeDataService : IAdministrativeDataService
 
     public async Task<bool> DeleteAdministrativeData(long fileNumber)
     {
-        var adminData = await _context.AdministrativeData
-            .FirstOrDefaultAsync(ad => ad.FileNumber == fileNumber);
-        if (adminData == null) return false;
+        var adminData = await _context.AdministrativeData.FirstOrDefaultAsync(ad =>
+            ad.FileNumber == fileNumber
+        );
+        if (adminData == null)
+            return false;
 
         _context.AdministrativeData.Remove(adminData);
         await _context.SaveChangesAsync();

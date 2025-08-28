@@ -15,4 +15,4 @@ public class UpdateDescriptionClassificationDto
     public BibliographyDto? Bibliography { get; set; }
     public ObjectHistoryDto? ObjectHistory { get; set; }
     public string? Observations { get; set; }
-} 
+}

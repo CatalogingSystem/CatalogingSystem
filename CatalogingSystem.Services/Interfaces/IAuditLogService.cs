@@ -1,8 +1,8 @@
 namespace CatalogingSystem.Services.Interfaces;
 
+using System.Threading.Tasks;
 using CatalogingSystem.DTOs;
 using CatalogingSystem.DTOs.Dtos;
-using System.Threading.Tasks;
 
 public interface IAuditLogService
 {
@@ -12,5 +12,6 @@ public interface IAuditLogService
         string? username = null,
         long? expediente = null,
         int page = 1,
-        int size = 10);
+        int size = 10
+    );
 }

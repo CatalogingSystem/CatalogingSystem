@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
-using System.Text.Json;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogingSystem.Api.Controllers;
 
@@ -14,7 +14,10 @@ public class CatalogController : ControllerBase
     private readonly ICatalogService _service;
     private readonly IValidator<CatalogItemDto> _catalogItemValidator;
 
-    public CatalogController(ICatalogService service, IValidator<CatalogItemDto> catalogItemValidator)
+    public CatalogController(
+        ICatalogService service,
+        IValidator<CatalogItemDto> catalogItemValidator
+    )
     {
         _service = service;
         _catalogItemValidator = catalogItemValidator;
@@ -30,7 +33,8 @@ public class CatalogController : ControllerBase
     [Authorize(Policy = "ArchivoAdminRead")]
     public async Task<ActionResult<PagedResultDto<CatalogItemDto>>> GetCatalogItems(
         [FromQuery] int page = 1,
-        [FromQuery] int size = 10)
+        [FromQuery] int size = 10
+    )
     {
         return Ok(await _service.GetCatalogItems(page, size));
     }
@@ -54,7 +58,8 @@ public class CatalogController : ControllerBase
         [FromQuery] string? titleName = null,
         [FromQuery] string? genericClassification = null,
         [FromQuery] int page = 1,
-        [FromQuery] int size = 10)
+        [FromQuery] int size = 10
+    )
     {
         if (expediente.HasValue)
         {
@@ -63,17 +68,26 @@ public class CatalogController : ControllerBase
             {
                 return NotFound();
             }
-            return Ok(new PagedResultDto<CatalogItemDto>
-            {
-                Items = new[] { item },
-                TotalItems = 1,
-                TotalPages = 1,
-                CurrentPage = 1,
-                PageSize = 1
-            });
+            return Ok(
+                new PagedResultDto<CatalogItemDto>
+                {
+                    Items = new[] { item },
+                    TotalItems = 1,
+                    TotalPages = 1,
+                    CurrentPage = 1,
+                    PageSize = 1,
+                }
+            );
         }
 
-        var items = await _service.SearchCatalogItems(materialName, authorName, titleName, genericClassification, page, size);
+        var items = await _service.SearchCatalogItems(
+            materialName,
+            authorName,
+            titleName,
+            genericClassification,
+            page,
+            size
+        );
         return Ok(items);
     }
 
@@ -96,6 +110,7 @@ public class CatalogController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
     /// <summary>
     /// Exports a single catalog item as a JSON file by expediente.
     /// </summary>
@@ -108,10 +123,15 @@ public class CatalogController : ControllerBase
         var catalogItem = await _service.ExportCatalogItem(expediente);
         if (catalogItem == null)
         {
-            return NotFound(new { message = $"No se encontró un expediente con el número {expediente}." });
+            return NotFound(
+                new { message = $"No se encontró un expediente con el número {expediente}." }
+            );
         }
 
-        var json = JsonSerializer.Serialize(catalogItem, new JsonSerializerOptions { WriteIndented = true });
+        var json = JsonSerializer.Serialize(
+            catalogItem,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
         var bytes = System.Text.Encoding.UTF8.GetBytes(json);
         return File(bytes, "application/json", $"catalog_item_{expediente}.json");
     }
@@ -124,7 +144,10 @@ public class CatalogController : ControllerBase
     /// <returns>NoContent if successful; otherwise, BadRequest with validation errors.</returns>
     [HttpPost("import")]
     [Authorize(Policy = "ArchivoAdminWrite")]
-    public async Task<IActionResult> ImportCatalog(IFormFile file, [FromQuery] long? nuevoExpediente = null)
+    public async Task<IActionResult> ImportCatalog(
+        IFormFile file,
+        [FromQuery] long? nuevoExpediente = null
+    )
     {
         if (file == null || file.Length == 0)
         {
@@ -143,15 +166,18 @@ public class CatalogController : ControllerBase
 
             try
             {
-                catalogItems = await JsonSerializer.DeserializeAsync<List<CatalogItemDto>>(stream) ?? new List<CatalogItemDto>();
+                catalogItems =
+                    await JsonSerializer.DeserializeAsync<List<CatalogItemDto>>(stream)
+                    ?? new List<CatalogItemDto>();
             }
             catch (JsonException)
             {
                 stream.Position = 0;
                 var singleItem = await JsonSerializer.DeserializeAsync<CatalogItemDto>(stream);
-                catalogItems = singleItem != null
-                    ? new List<CatalogItemDto> { singleItem }
-                    : new List<CatalogItemDto>();
+                catalogItems =
+                    singleItem != null
+                        ? new List<CatalogItemDto> { singleItem }
+                        : new List<CatalogItemDto>();
             }
 
             if (catalogItems == null || !catalogItems.Any())
@@ -165,13 +191,17 @@ public class CatalogController : ControllerBase
                 var result = await _catalogItemValidator.ValidateAsync(item);
                 if (!result.IsValid)
                 {
-                    validationErrors.AddRange(result.Errors.Select(e => $"Expediente {item.Expediente}: {e.ErrorMessage}"));
+                    validationErrors.AddRange(
+                        result.Errors.Select(e => $"Expediente {item.Expediente}: {e.ErrorMessage}")
+                    );
                 }
             }
 
             if (validationErrors.Any())
             {
-                return BadRequest(new { message = "Errores de validación", errors = validationErrors });
+                return BadRequest(
+                    new { message = "Errores de validación", errors = validationErrors }
+                );
             }
 
             await _service.ImportCatalogItems(catalogItems, nuevoExpediente);
@@ -187,7 +217,10 @@ public class CatalogController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = $"Error al importar el catálogo: {ex.Message}" });
+            return StatusCode(
+                500,
+                new { message = $"Error al importar el catálogo: {ex.Message}" }
+            );
         }
     }
 }
