@@ -18,12 +18,6 @@ RUN dotnet restore
 # Copiar todo el código fuente
 COPY . .
 
-# ---> ¡AQUÍ ESTÁ LA MAGIA! <---
-# Ejecutar las migraciones ANTES de publicar la aplicación.
-# Nota cómo los paths son relativos a la raíz del proyecto, donde está el .sln
-RUN dotnet ef database update --project CatalogingSystem.Data --startup-project CatalogingSystem.Api --context BaseDbContext
-RUN dotnet ef database update --project CatalogingSystem.Data --startup-project CatalogingSystem.Api --context ApplicationDbContext
-
 # Publicar la aplicación para la etapa final
 WORKDIR /source/CatalogingSystem.Api
 RUN dotnet publish -c Release -o /app/publish --no-restore
