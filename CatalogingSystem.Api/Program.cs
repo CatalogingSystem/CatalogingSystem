@@ -208,6 +208,15 @@ builder.Services.AddScoped<ITenantCustomizationService, TenantCustomizationServi
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var baseContext = scope.ServiceProvider.GetRequiredService<BaseDbContext>();
+    baseContext.Database.Migrate();
+
+    var appContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    appContext.Database.Migrate();
+}
+
 // Apply migrations for all existing tenants
 await ApplyTenantMigrations.ApplyAllTenantMigrationsAsync(app.Services);
 await ProgramHelper.EnsureSuperDirectorExists(app.Services);
