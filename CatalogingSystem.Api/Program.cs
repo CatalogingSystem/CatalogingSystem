@@ -179,8 +179,9 @@ builder.Services.AddAutoMapper(
     typeof(DescriptionClassificationProfile),
     typeof(TenantCustomizationProfile)
 );
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString =
+    Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BaseDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
 
