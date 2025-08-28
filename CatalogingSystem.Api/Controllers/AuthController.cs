@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using CatalogingSystem.Services.Interfaces;
 using CatalogingSystem.DTOs;
 using CatalogingSystem.Services.Implementations;
+using CatalogingSystem.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogingSystem.Api.Controllers;
 
@@ -12,7 +12,10 @@ public class AuthController : ControllerBase
     private readonly IAuthService _authService;
     private readonly SuperDirectorAuthService _superDirectorAuthService;
 
-    public AuthController(IAuthService authService, SuperDirectorAuthService superDirectorAuthService)
+    public AuthController(
+        IAuthService authService,
+        SuperDirectorAuthService superDirectorAuthService
+    )
     {
         _authService = authService;
         _superDirectorAuthService = superDirectorAuthService;

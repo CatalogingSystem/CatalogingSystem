@@ -26,7 +26,9 @@ public class GraphicDocumentationController : ControllerBase
 
     [HttpGet("{expediente:long}")]
     [Authorize(Policy = "ArchivoAdminRead")]
-    public async Task<ActionResult<GraphicDocumentationDto>> GetGraphicDocumentation(long expediente)
+    public async Task<ActionResult<GraphicDocumentationDto>> GetGraphicDocumentation(
+        long expediente
+    )
     {
         var graphicDoc = await _service.GetGraphicDocumentation(expediente);
         return graphicDoc == null ? NotFound() : Ok(graphicDoc);
@@ -34,12 +36,18 @@ public class GraphicDocumentationController : ControllerBase
 
     [HttpPost]
     [Authorize(Policy = "ArchivoAdminWrite")]
-    public async Task<ActionResult<GraphicDocumentation>> PostGraphicDocumentation([FromBody] GraphicDocumentationDto dto)
+    public async Task<ActionResult<GraphicDocumentation>> PostGraphicDocumentation(
+        [FromBody] GraphicDocumentationDto dto
+    )
     {
         try
         {
             var graphicDoc = await _service.CreateGraphicDocumentation(dto);
-            return CreatedAtAction(nameof(GetGraphicDocumentation), new { expediente = graphicDoc.expediente }, graphicDoc);
+            return CreatedAtAction(
+                nameof(GetGraphicDocumentation),
+                new { expediente = graphicDoc.expediente },
+                graphicDoc
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -49,7 +57,10 @@ public class GraphicDocumentationController : ControllerBase
 
     [HttpPut("{expediente:long}")]
     [Authorize(Policy = "ArchivoAdminWrite")]
-    public async Task<IActionResult> PutGraphicDocumentation(long expediente, [FromBody] UpdateGraphicDocumentationDto dto)
+    public async Task<IActionResult> PutGraphicDocumentation(
+        long expediente,
+        [FromBody] UpdateGraphicDocumentationDto dto
+    )
     {
         try
         {

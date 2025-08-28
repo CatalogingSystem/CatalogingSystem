@@ -1,4 +1,5 @@
 namespace CatalogingSystem.DTOs.Dtos;
+
 public class SpecificNameDto
 {
     public string GenericName { get; set; } = string.Empty;

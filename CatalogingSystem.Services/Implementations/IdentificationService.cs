@@ -1,12 +1,12 @@
 namespace CatalogingSystem.Services.Implementations;
 
+using System.Text.Json;
 using AutoMapper;
 using CatalogingSystem.Core.Entities;
+using CatalogingSystem.Data.DbContext;
 using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using CatalogingSystem.Data.DbContext;
-using System.Text.Json;
 
 public class IdentificationService : IIdentificationService
 {
@@ -14,7 +14,11 @@ public class IdentificationService : IIdentificationService
     private readonly IMapper _mapper;
     private readonly IAuditService _auditService;
 
-    public IdentificationService(ApplicationDbContext context, IMapper mapper, IAuditService auditService)
+    public IdentificationService(
+        ApplicationDbContext context,
+        IMapper mapper,
+        IAuditService auditService
+    )
     {
         _context = context;
         _mapper = mapper;
@@ -23,8 +27,8 @@ public class IdentificationService : IIdentificationService
 
     public async Task<IEnumerable<IdentificationDto>> GetIdentifications()
     {
-        var identifications = await _context.Identifications
-            .Include(i => i.ArchivoAdministrativo)
+        var identifications = await _context
+            .Identifications.Include(i => i.ArchivoAdministrativo)
             .ToListAsync();
 
         return _mapper.Map<IEnumerable<IdentificationDto>>(identifications);
@@ -32,8 +36,8 @@ public class IdentificationService : IIdentificationService
 
     public async Task<IdentificationDto?> GetIdentification(long expediente)
     {
-        var identification = await _context.Identifications
-            .Include(i => i.ArchivoAdministrativo)
+        var identification = await _context
+            .Identifications.Include(i => i.ArchivoAdministrativo)
             .FirstOrDefaultAsync(i => i.expediente == expediente);
 
         return identification == null ? null : _mapper.Map<IdentificationDto>(identification);
@@ -41,18 +45,25 @@ public class IdentificationService : IIdentificationService
 
     public async Task<Identification> CreateIdentification(IdentificationDto dto)
     {
-        var archivo = await _context.ArchivosAdministrativos
-            .FirstOrDefaultAsync(a => a.expediente == dto.Expediente);
+        var archivo = await _context.ArchivosAdministrativos.FirstOrDefaultAsync(a =>
+            a.expediente == dto.Expediente
+        );
         if (archivo == null)
         {
-            throw new InvalidOperationException($"No existe un archivo administrativo con el número de expediente {dto.Expediente}");
+            throw new InvalidOperationException(
+                $"No existe un archivo administrativo con el número de expediente {dto.Expediente}"
+            );
         }
 
         // Validar que el expediente no exista ya en Identifications
-        bool existsExpediente = await _context.Identifications.AnyAsync(i => i.expediente == dto.Expediente);
+        bool existsExpediente = await _context.Identifications.AnyAsync(i =>
+            i.expediente == dto.Expediente
+        );
         if (existsExpediente)
         {
-            throw new InvalidOperationException($"Ya existe una identificación con el número de expediente {dto.Expediente}");
+            throw new InvalidOperationException(
+                $"Ya existe una identificación con el número de expediente {dto.Expediente}"
+            );
         }
 
         var identification = _mapper.Map<Identification>(dto);
@@ -68,8 +79,11 @@ public class IdentificationService : IIdentificationService
 
     public async Task<bool> UpdateIdentification(long expediente, UpdateIdentificationDto dto)
     {
-        var identification = await _context.Identifications.FirstOrDefaultAsync(i => i.expediente == expediente);
-        if (identification == null) return false;
+        var identification = await _context.Identifications.FirstOrDefaultAsync(i =>
+            i.expediente == expediente
+        );
+        if (identification == null)
+            return false;
 
         var oldDataJson = JsonSerializer.Serialize(identification);
         var oldData = JsonSerializer.Deserialize<Identification>(oldDataJson);
@@ -81,8 +95,11 @@ public class IdentificationService : IIdentificationService
 
     public async Task<bool> DeleteIdentification(long expediente)
     {
-        var identification = await _context.Identifications.FirstOrDefaultAsync(i => i.expediente == expediente);
-        if (identification == null) return false;
+        var identification = await _context.Identifications.FirstOrDefaultAsync(i =>
+            i.expediente == expediente
+        );
+        if (identification == null)
+            return false;
 
         _context.Identifications.Remove(identification);
         await _context.SaveChangesAsync();

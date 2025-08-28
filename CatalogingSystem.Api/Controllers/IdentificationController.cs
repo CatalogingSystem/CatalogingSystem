@@ -39,7 +39,11 @@ public class IdentificationController : ControllerBase
         try
         {
             var identification = await _service.CreateIdentification(dto);
-            return CreatedAtAction(nameof(GetIdentification), new { expediente = identification.expediente }, identification);
+            return CreatedAtAction(
+                nameof(GetIdentification),
+                new { expediente = identification.expediente },
+                identification
+            );
         }
         catch (InvalidOperationException ex)
         {

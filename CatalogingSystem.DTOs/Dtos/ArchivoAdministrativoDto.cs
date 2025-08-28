@@ -1,5 +1,6 @@
 namespace CatalogingSystem.DTOs.Dtos;
-using CatalogingSystem.Core.Enums; 
+
+using CatalogingSystem.Core.Enums;
 
 public class ArchivoAdministrativoDto
 {

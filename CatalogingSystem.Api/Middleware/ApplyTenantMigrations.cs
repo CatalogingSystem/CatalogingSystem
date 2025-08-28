@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using CatalogingSystem.Data.DbContext;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CatalogingSystem.Api;
@@ -27,7 +27,9 @@ public class ApplyTenantMigrations
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error applying migrations for tenant {tenant.Id}: {ex.Message}");
+                Console.WriteLine(
+                    $"Error applying migrations for tenant {tenant.Id}: {ex.Message}"
+                );
             }
         }
     }

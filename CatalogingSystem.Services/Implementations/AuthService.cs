@@ -1,13 +1,13 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using CatalogingSystem.Core.Entities;
 using CatalogingSystem.Core.Interfaces;
 using CatalogingSystem.DTOs;
 using CatalogingSystem.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 namespace CatalogingSystem.Services.Implementations;
 
@@ -17,7 +17,11 @@ public class AuthService : IAuthService
     private readonly ICurrentTenantService _tenantService;
     private readonly IConfiguration _configuration;
 
-    public AuthService(UserManager<User> userManager, ICurrentTenantService tenantService, IConfiguration configuration)
+    public AuthService(
+        UserManager<User> userManager,
+        ICurrentTenantService tenantService,
+        IConfiguration configuration
+    )
     {
         _userManager = userManager;
         _tenantService = tenantService;
@@ -34,7 +38,11 @@ public class AuthService : IAuthService
 
         // Buscar el usuario y verificar credenciales
         var user = await _userManager.FindByNameAsync(request.Username);
-        if (user == null || user.TenantId != _tenantService.TenantId || !await _userManager.CheckPasswordAsync(user, request.Password))
+        if (
+            user == null
+            || user.TenantId != _tenantService.TenantId
+            || !await _userManager.CheckPasswordAsync(user, request.Password)
+        )
         {
             return null;
         }
@@ -69,7 +77,11 @@ public class AuthService : IAuthService
         var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience");
 
         // Validar que las variables no sean nulas
-        if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
+        if (
+            string.IsNullOrEmpty(jwtKey)
+            || string.IsNullOrEmpty(jwtIssuer)
+            || string.IsNullOrEmpty(jwtAudience)
+        )
         {
             throw new InvalidOperationException("JWT configuration is missing in AuthService.");
         }
@@ -90,10 +102,6 @@ public class AuthService : IAuthService
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
         // Devolver el DTO con el token y el nivel de permiso
-        return new LoginResponseDto
-        {
-            Token = tokenString,
-            PermissionLevel = permissionLevel
-        };
+        return new LoginResponseDto { Token = tokenString, PermissionLevel = permissionLevel };
     }
 }

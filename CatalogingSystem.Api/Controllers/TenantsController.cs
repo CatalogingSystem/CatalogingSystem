@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using CatalogingSystem.DTOs.Dtos;
 using CatalogingSystem.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogingSystem.Api.Controllers;
 
@@ -26,7 +26,8 @@ public class TenantsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllTenants(
         [FromQuery] int page = 1,
-        [FromQuery] int size = 10)
+        [FromQuery] int size = 10
+    )
     {
         try
         {

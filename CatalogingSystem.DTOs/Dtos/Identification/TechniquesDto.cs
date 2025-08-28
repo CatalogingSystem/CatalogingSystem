@@ -1,4 +1,5 @@
 namespace CatalogingSystem.DTOs.Dtos;
+
 public class TechniquesDto
 {
     public string DescribedPart { get; set; } = string.Empty;

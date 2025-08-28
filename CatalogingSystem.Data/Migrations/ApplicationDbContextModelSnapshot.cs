@@ -23,6 +23,42 @@ namespace CatalogingSystem.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CatalogingSystem.Core.Entities.AdministrativeData", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<DateTime?>("CatalogingDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CollectionType")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EntryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EntryForm")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EntrySource")
+                        .HasColumnType("text");
+
+                    b.Property<long>("FileNumber")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Observations")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FileNumber")
+                        .IsUnique();
+
+                    b.ToTable("AdministrativeData");
+                });
+
             modelBuilder.Entity("CatalogingSystem.Core.Entities.ArchivoAdministrativo", b =>
                 {
                     b.Property<Guid>("Id")
@@ -127,6 +163,108 @@ namespace CatalogingSystem.Data.Migrations
                     b.ToTable("AuditLogs");
                 });
 
+            modelBuilder.Entity("CatalogingSystem.Core.Entities.Conservation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("AffectedArea")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AnalysisTypes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Depth")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<long>("Expediente")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Inventory")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Length")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Observations")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Reports")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Results")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SpecialConditions")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TreatmentType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Width")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Expediente")
+                        .IsUnique();
+
+                    b.ToTable("Conservations");
+                });
+
+            modelBuilder.Entity("CatalogingSystem.Core.Entities.Dating", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<long>("Expediente")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Inventory")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Expediente")
+                        .IsUnique();
+
+                    b.ToTable("Datings");
+                });
+
+            modelBuilder.Entity("CatalogingSystem.Core.Entities.DescriptionClassification.DescriptionClassification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<long>("Expediente")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Observations")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Expediente")
+                        .IsUnique();
+
+                    b.ToTable("DescriptionClassifications");
+                });
+
             modelBuilder.Entity("CatalogingSystem.Core.Entities.GraphicDocumentation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -207,6 +345,119 @@ namespace CatalogingSystem.Data.Migrations
                     b.HasIndex("expediente");
 
                     b.ToTable("Identifications");
+                });
+
+            modelBuilder.Entity("CatalogingSystem.Core.Entities.TemporalMovement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DepartureDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Document")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Entity")
+                        .HasColumnType("text");
+
+                    b.Property<long>("Expediente")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Insurer")
+                        .HasColumnType("text");
+
+                    b.Property<int>("MovementType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Observations")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Policy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ReturnDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TransferLocation")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Expediente");
+
+                    b.ToTable("TemporalMovements");
+                });
+
+            modelBuilder.Entity("CatalogingSystem.Core.Entities.TenantCustomization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Admin")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Background")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Director")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Header")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Modification")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PrimaryButton")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReadOnly")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Researcher")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SecondaryButton")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SelectedSteps")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Steps")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TenantCustomizations");
                 });
 
             modelBuilder.Entity("CatalogingSystem.Core.Entities.User", b =>
@@ -409,6 +660,740 @@ namespace CatalogingSystem.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("CatalogingSystem.Core.Entities.AdministrativeData", b =>
+                {
+                    b.HasOne("CatalogingSystem.Core.Entities.ArchivoAdministrativo", "ArchivoAdministrativo")
+                        .WithOne()
+                        .HasForeignKey("CatalogingSystem.Core.Entities.AdministrativeData", "FileNumber")
+                        .HasPrincipalKey("CatalogingSystem.Core.Entities.ArchivoAdministrativo", "expediente")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.Cataloger", "Cataloger", b1 =>
+                        {
+                            b1.Property<Guid>("AdministrativeDataId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Address")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Country")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Department")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Email")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("FirstName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("IdentityCard")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Institution")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("LastName")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Locality")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Observations")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("PhoneNumber")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Province")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("References")
+                                .HasColumnType("text");
+
+                            b1.HasKey("AdministrativeDataId");
+
+                            b1.ToTable("AdministrativeData");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AdministrativeDataId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.CopiesReproductions", "CopiesReproductions", b1 =>
+                        {
+                            b1.Property<Guid>("AdministrativeDataId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Author")
+                                .HasColumnType("text");
+
+                            b1.Property<DateTime?>("Date")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<string>("Format")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Location")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Method")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("OriginalDestination")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("OriginalTitle")
+                                .HasColumnType("text");
+
+                            b1.HasKey("AdministrativeDataId");
+
+                            b1.ToTable("AdministrativeData");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AdministrativeDataId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.Valuation", "Valuation", b1 =>
+                        {
+                            b1.Property<Guid>("AdministrativeDataId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Appraiser")
+                                .HasColumnType("text");
+
+                            b1.Property<DateTime?>("Date")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Value")
+                                .HasColumnType("text");
+
+                            b1.HasKey("AdministrativeDataId");
+
+                            b1.ToTable("AdministrativeData");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AdministrativeDataId");
+                        });
+
+                    b.Navigation("ArchivoAdministrativo");
+
+                    b.Navigation("Cataloger");
+
+                    b.Navigation("CopiesReproductions");
+
+                    b.Navigation("Valuation");
+                });
+
+            modelBuilder.Entity("CatalogingSystem.Core.Entities.Conservation", b =>
+                {
+                    b.HasOne("CatalogingSystem.Core.Entities.ArchivoAdministrativo", "ArchivoAdministrativo")
+                        .WithOne()
+                        .HasForeignKey("CatalogingSystem.Core.Entities.Conservation", "Expediente")
+                        .HasPrincipalKey("CatalogingSystem.Core.Entities.ArchivoAdministrativo", "expediente")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ArchivoAdministrativo");
+                });
+
+            modelBuilder.Entity("CatalogingSystem.Core.Entities.Dating", b =>
+                {
+                    b.HasOne("CatalogingSystem.Core.Entities.ArchivoAdministrativo", "ArchivoAdministrativo")
+                        .WithOne()
+                        .HasForeignKey("CatalogingSystem.Core.Entities.Dating", "Expediente")
+                        .HasPrincipalKey("CatalogingSystem.Core.Entities.ArchivoAdministrativo", "expediente")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.ApproximateDating", "ApproximateDating", b1 =>
+                        {
+                            b1.Property<Guid>("DatingId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<int?>("FromCentury")
+                                .HasColumnType("integer");
+
+                            b1.Property<bool>("IsPresent")
+                                .HasColumnType("boolean");
+
+                            b1.Property<int?>("ToCentury")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("DatingId");
+
+                            b1.ToTable("Datings");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DatingId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DateRange", "DateRange", b1 =>
+                        {
+                            b1.Property<Guid>("DatingId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<bool>("IsPresent")
+                                .HasColumnType("boolean");
+
+                            b1.HasKey("DatingId");
+
+                            b1.ToTable("Datings");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DatingId");
+
+                            b1.OwnsOne("CatalogingSystem.Core.Entities.DateDetail", "From", b2 =>
+                                {
+                                    b2.Property<Guid>("DateRangeDatingId")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<string>("Approximate")
+                                        .HasColumnType("text");
+
+                                    b2.Property<long?>("BC")
+                                        .HasColumnType("bigint");
+
+                                    b2.Property<long?>("Day")
+                                        .HasColumnType("bigint");
+
+                                    b2.Property<string>("Exact")
+                                        .HasColumnType("text");
+
+                                    b2.Property<bool>("IsPresent")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<long?>("Month")
+                                        .HasColumnType("bigint");
+
+                                    b2.Property<string>("Probable")
+                                        .HasColumnType("text");
+
+                                    b2.Property<long?>("Year")
+                                        .HasColumnType("bigint");
+
+                                    b2.HasKey("DateRangeDatingId");
+
+                                    b2.ToTable("Datings");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("DateRangeDatingId");
+                                });
+
+                            b1.OwnsOne("CatalogingSystem.Core.Entities.DateDetail", "To", b2 =>
+                                {
+                                    b2.Property<Guid>("DateRangeDatingId")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<string>("Approximate")
+                                        .HasColumnType("text");
+
+                                    b2.Property<long?>("BC")
+                                        .HasColumnType("bigint");
+
+                                    b2.Property<long?>("Day")
+                                        .HasColumnType("bigint");
+
+                                    b2.Property<string>("Exact")
+                                        .HasColumnType("text");
+
+                                    b2.Property<bool>("IsPresent")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<long?>("Month")
+                                        .HasColumnType("bigint");
+
+                                    b2.Property<string>("Probable")
+                                        .HasColumnType("text");
+
+                                    b2.Property<long?>("Year")
+                                        .HasColumnType("bigint");
+
+                                    b2.HasKey("DateRangeDatingId");
+
+                                    b2.ToTable("Datings");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("DateRangeDatingId");
+                                });
+
+                            b1.Navigation("From");
+
+                            b1.Navigation("To");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DatingNotes", "Notes", b1 =>
+                        {
+                            b1.Property<Guid>("DatingId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("FinalDateNotes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("InitialDateNotes")
+                                .HasColumnType("text");
+
+                            b1.Property<bool>("IsPresent")
+                                .HasColumnType("boolean");
+
+                            b1.Property<string>("Observations")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("TextualDate")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DatingId");
+
+                            b1.ToTable("Datings");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DatingId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.SimpleDate", "SimpleDate", b1 =>
+                        {
+                            b1.Property<Guid>("DatingId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Approximate")
+                                .HasColumnType("text");
+
+                            b1.Property<long?>("BC")
+                                .HasColumnType("bigint");
+
+                            b1.Property<long?>("Day")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("Exact")
+                                .HasColumnType("text");
+
+                            b1.Property<bool>("IsPresent")
+                                .HasColumnType("boolean");
+
+                            b1.Property<long?>("Month")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("Probable")
+                                .HasColumnType("text");
+
+                            b1.Property<long?>("Year")
+                                .HasColumnType("bigint");
+
+                            b1.HasKey("DatingId");
+
+                            b1.ToTable("Datings");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DatingId");
+                        });
+
+                    b.Navigation("ApproximateDating");
+
+                    b.Navigation("ArchivoAdministrativo");
+
+                    b.Navigation("DateRange");
+
+                    b.Navigation("Notes");
+
+                    b.Navigation("SimpleDate");
+                });
+
+            modelBuilder.Entity("CatalogingSystem.Core.Entities.DescriptionClassification.DescriptionClassification", b =>
+                {
+                    b.HasOne("CatalogingSystem.Core.Entities.ArchivoAdministrativo", "ArchivoAdministrativo")
+                        .WithOne()
+                        .HasForeignKey("CatalogingSystem.Core.Entities.DescriptionClassification.DescriptionClassification", "Expediente")
+                        .HasPrincipalKey("CatalogingSystem.Core.Entities.ArchivoAdministrativo", "expediente")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DescriptionClassification.Bibliography", "Bibliography", b1 =>
+                        {
+                            b1.Property<Guid>("DescriptionClassificationId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Author")
+                                .HasColumnType("text");
+
+                            b1.Property<DateTime?>("Date")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Page")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("RegistrationNumber")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("SourceDocument")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("TextualCitation")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Title")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DescriptionClassificationId");
+
+                            b1.ToTable("DescriptionClassifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DescriptionClassificationId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DescriptionClassification.CollectionProvenance", "CollectionProvenance", b1 =>
+                        {
+                            b1.Property<Guid>("DescriptionClassificationId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Canton")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Country")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Department")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Province")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("SpecificPlace")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DescriptionClassificationId");
+
+                            b1.ToTable("DescriptionClassifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DescriptionClassificationId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DescriptionClassification.CulturalContext", "CulturalContext", b1 =>
+                        {
+                            b1.Property<Guid>("DescriptionClassificationId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("DescribedPart")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("RelatedCulturalElements")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DescriptionClassificationId");
+
+                            b1.ToTable("DescriptionClassifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DescriptionClassificationId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DescriptionClassification.Decoration", "Decoration", b1 =>
+                        {
+                            b1.Property<Guid>("DescriptionClassificationId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Description")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Location")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MotifOrIconIdentification")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DescriptionClassificationId");
+
+                            b1.ToTable("DescriptionClassifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DescriptionClassificationId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DescriptionClassification.DescriptionDimensions", "DescriptionDimensions", b1 =>
+                        {
+                            b1.Property<Guid>("DescriptionClassificationId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("BaseCircumference")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("BodyCircumference")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Depth")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Length")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("MouthCircumference")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("ObjectTypeSpecifications")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Thickness")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Width")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DescriptionClassificationId");
+
+                            b1.ToTable("DescriptionClassifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DescriptionClassificationId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DescriptionClassification.Inscriptions", "Inscriptions", b1 =>
+                        {
+                            b1.Property<Guid>("DescriptionClassificationId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Author")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("CharacterType")
+                                .HasColumnType("text");
+
+                            b1.Property<DateTime?>("Date")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<string>("Language")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Location")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Method")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Script")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Transcription")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Translation")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DescriptionClassificationId");
+
+                            b1.ToTable("DescriptionClassifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DescriptionClassificationId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DescriptionClassification.ObjectHistory", "ObjectHistory", b1 =>
+                        {
+                            b1.Property<Guid>("DescriptionClassificationId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("GeneralHistory")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("ObjectHistoryDetails")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DescriptionClassificationId");
+
+                            b1.ToTable("DescriptionClassifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DescriptionClassificationId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DescriptionClassification.PlaceOfElaboration", "PlaceOfElaboration", b1 =>
+                        {
+                            b1.Property<Guid>("DescriptionClassificationId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Canton")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Country")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Department")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Province")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("SpecificPlace")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DescriptionClassificationId");
+
+                            b1.ToTable("DescriptionClassifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DescriptionClassificationId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DescriptionClassification.ReasonedClassification", "ReasonedClassification", b1 =>
+                        {
+                            b1.Property<Guid>("DescriptionClassificationId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Classification")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DescriptionClassificationId");
+
+                            b1.ToTable("DescriptionClassifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DescriptionClassificationId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DescriptionClassification.SignaturesAndMarks", "SignaturesAndMarks", b1 =>
+                        {
+                            b1.Property<Guid>("DescriptionClassificationId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Author")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("CharacterType")
+                                .HasColumnType("text");
+
+                            b1.Property<DateTime?>("Date")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<string>("Language")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Location")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Method")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Script")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Transcription")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Translation")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DescriptionClassificationId");
+
+                            b1.ToTable("DescriptionClassifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DescriptionClassificationId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.DescriptionClassification.TechnicalCharacteristics", "TechnicalCharacteristics", b1 =>
+                        {
+                            b1.Property<Guid>("DescriptionClassificationId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Characteristics")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("DescribedPart")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Description")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.HasKey("DescriptionClassificationId");
+
+                            b1.ToTable("DescriptionClassifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DescriptionClassificationId");
+                        });
+
+                    b.Navigation("ArchivoAdministrativo");
+
+                    b.Navigation("Bibliography");
+
+                    b.Navigation("CollectionProvenance");
+
+                    b.Navigation("CulturalContext");
+
+                    b.Navigation("Decoration");
+
+                    b.Navigation("DescriptionDimensions");
+
+                    b.Navigation("Inscriptions");
+
+                    b.Navigation("ObjectHistory");
+
+                    b.Navigation("PlaceOfElaboration");
+
+                    b.Navigation("ReasonedClassification");
+
+                    b.Navigation("SignaturesAndMarks");
+
+                    b.Navigation("TechnicalCharacteristics");
                 });
 
             modelBuilder.Entity("CatalogingSystem.Core.Entities.GraphicDocumentation", b =>
@@ -743,6 +1728,227 @@ namespace CatalogingSystem.Data.Migrations
 
                     b.Navigation("typology")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("CatalogingSystem.Core.Entities.TemporalMovement", b =>
+                {
+                    b.HasOne("CatalogingSystem.Core.Entities.ArchivoAdministrativo", "ArchivoAdministrativo")
+                        .WithMany()
+                        .HasForeignKey("Expediente")
+                        .HasPrincipalKey("expediente")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.Applicant", "Applicant", b1 =>
+                        {
+                            b1.Property<Guid>("TemporalMovementId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Address")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Country")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Department")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Email")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("FirstName")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("IdentityCard")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Institution")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("InstitutionalId")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("LastName")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Locality")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Observations")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("PhoneNumber")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Province")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("References")
+                                .HasColumnType("text");
+
+                            b1.HasKey("TemporalMovementId");
+
+                            b1.ToTable("TemporalMovements");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TemporalMovementId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.Departure", "Departure", b1 =>
+                        {
+                            b1.Property<Guid>("TemporalMovementId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Company")
+                                .HasColumnType("text");
+
+                            b1.Property<DateTime?>("Date")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<bool>("IsPresent")
+                                .HasColumnType("boolean");
+
+                            b1.Property<string>("Location")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Time")
+                                .HasColumnType("text");
+
+                            b1.HasKey("TemporalMovementId");
+
+                            b1.ToTable("TemporalMovements");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TemporalMovementId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.Representative", "Representative", b1 =>
+                        {
+                            b1.Property<Guid>("TemporalMovementId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Address")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Country")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Department")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Email")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("FirstName")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("IdentityCard")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Institution")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("InstitutionalId")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("LastName")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Locality")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Observations")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("PhoneNumber")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Province")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("References")
+                                .HasColumnType("text");
+
+                            b1.HasKey("TemporalMovementId");
+
+                            b1.ToTable("TemporalMovements");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TemporalMovementId");
+                        });
+
+                    b.OwnsOne("CatalogingSystem.Core.Entities.Return", "Return", b1 =>
+                        {
+                            b1.Property<Guid>("TemporalMovementId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Company")
+                                .HasColumnType("text");
+
+                            b1.Property<DateTime?>("Date")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<bool>("IsPresent")
+                                .HasColumnType("boolean");
+
+                            b1.Property<string>("Location")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Notes")
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Time")
+                                .HasColumnType("text");
+
+                            b1.HasKey("TemporalMovementId");
+
+                            b1.ToTable("TemporalMovements");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TemporalMovementId");
+                        });
+
+                    b.Navigation("Applicant")
+                        .IsRequired();
+
+                    b.Navigation("ArchivoAdministrativo");
+
+                    b.Navigation("Departure");
+
+                    b.Navigation("Representative");
+
+                    b.Navigation("Return");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

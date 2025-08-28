@@ -1,7 +1,7 @@
+using CatalogingSystem.DTOs;
+using CatalogingSystem.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using CatalogingSystem.Services.Interfaces;
-using CatalogingSystem.DTOs;
 
 namespace CatalogingSystem.Api.Controllers;
 
@@ -28,7 +28,17 @@ public class UsersController : ControllerBase
         try
         {
             var user = await _userService.CreateUserAsync(request);
-            return CreatedAtAction(nameof(CreateUser), new { id = user.Id }, new { user.Id, user.UserName, user.TenantId, Role = request.Role });
+            return CreatedAtAction(
+                nameof(CreateUser),
+                new { id = user.Id },
+                new
+                {
+                    user.Id,
+                    user.UserName,
+                    user.TenantId,
+                    Role = request.Role,
+                }
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -47,9 +57,7 @@ public class UsersController : ControllerBase
     /// <param name="size">The number of items per page (default is 10).</param>
     /// <returns>A paginated list of users.</returns>
     [HttpGet]
-    public async Task<IActionResult> GetUsers(
-        [FromQuery] int page = 1,
-        [FromQuery] int size = 10)
+    public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int size = 10)
     {
         try
         {
@@ -63,7 +71,10 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{userId}")]
-    public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateUserRequestDto request)
+    public async Task<IActionResult> UpdateUser(
+        string userId,
+        [FromBody] UpdateUserRequestDto request
+    )
     {
         try
         {
@@ -76,7 +87,10 @@ public class UsersController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = $"Error al actualizar el usuario: {ex.Message}" });
+            return StatusCode(
+                500,
+                new { message = $"Error al actualizar el usuario: {ex.Message}" }
+            );
         }
     }
 }

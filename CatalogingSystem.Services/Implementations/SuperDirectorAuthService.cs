@@ -3,12 +3,12 @@ namespace CatalogingSystem.Services.Implementations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 using CatalogingSystem.Core.Entities;
 using CatalogingSystem.Data.DbContext;
 using CatalogingSystem.DTOs;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 public class SuperDirectorAuthService
 {
@@ -21,9 +21,13 @@ public class SuperDirectorAuthService
 
     public async Task<string?> AuthenticateAsync(LoginRequestDto request)
     {
-        var superDirector = await _baseDbContext.SuperDirectorUsers
-            .FirstOrDefaultAsync(u => u.UserName == request.Username);
-        if (superDirector == null || !BCrypt.Net.BCrypt.Verify(request.Password, superDirector.PasswordHash))
+        var superDirector = await _baseDbContext.SuperDirectorUsers.FirstOrDefaultAsync(u =>
+            u.UserName == request.Username
+        );
+        if (
+            superDirector == null
+            || !BCrypt.Net.BCrypt.Verify(request.Password, superDirector.PasswordHash)
+        )
         {
             return null;
         }
@@ -32,7 +36,7 @@ public class SuperDirectorAuthService
         {
             new Claim(JwtRegisteredClaimNames.Sub, superDirector.Id),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Role, "SuperDirector")
+            new Claim(ClaimTypes.Role, "SuperDirector"),
         };
 
         var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key");

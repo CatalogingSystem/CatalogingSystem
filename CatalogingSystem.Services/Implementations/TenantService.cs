@@ -10,14 +10,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 
 namespace CatalogingSystem.Services.Implementations;
- 
+
 public class TenantService : ITenantService
 {
     private readonly BaseDbContext _baseDbContext;
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfiguration _configuration;
 
-    public TenantService(BaseDbContext baseDbContext, IServiceProvider serviceProvider, IConfiguration configuration)
+    public TenantService(
+        BaseDbContext baseDbContext,
+        IServiceProvider serviceProvider,
+        IConfiguration configuration
+    )
     {
         _baseDbContext = baseDbContext;
         _serviceProvider = serviceProvider;
@@ -31,8 +35,11 @@ public class TenantService : ITenantService
         if (await _baseDbContext.Tenants.AnyAsync(t => t.Id == tenantId))
             throw new InvalidOperationException($"El tenant con ISIL {request.ISIL} ya existe.");
 
-        string defaultConnection = _configuration.GetConnectionString("DefaultConnection") 
-            ?? throw new InvalidOperationException("La cadena de conexión por defecto no está configurada.");
+        string defaultConnection =
+            _configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException(
+                "La cadena de conexión por defecto no está configurada."
+            );
         var builder = new NpgsqlConnectionStringBuilder(defaultConnection);
         string tenantDbName = $"CatalogingSystem-db-{tenantId}";
         builder.Database = tenantDbName;
@@ -45,7 +52,7 @@ public class TenantService : ITenantService
             ISIL = request.ISIL,
             Description = request.Description,
             ConnectionString = tenantConnectionString,
-            ImageUrl = request.ImageUrl
+            ImageUrl = request.ImageUrl,
         };
 
         try
@@ -53,13 +60,16 @@ public class TenantService : ITenantService
             // Crear la base de datos manualmente si no existe
             var masterConnection = new NpgsqlConnectionStringBuilder(defaultConnection)
             {
-                Database = "postgres" // Conectar al catálogo principal de PostgreSQL
+                Database = "postgres", // Conectar al catálogo principal de PostgreSQL
             }.ToString();
 
             using (var connection = new NpgsqlConnection(masterConnection))
             {
                 await connection.OpenAsync();
-                using var command = new NpgsqlCommand($"CREATE DATABASE \"{tenantDbName}\"", connection);
+                using var command = new NpgsqlCommand(
+                    $"CREATE DATABASE \"{tenantDbName}\"",
+                    connection
+                );
                 await command.ExecuteNonQueryAsync();
             }
 
@@ -82,10 +92,12 @@ public class TenantService : ITenantService
         return tenant;
     }
 
-   public async Task<PagedResultDto<TenantDto>> GetAllTenantsAsync(int page = 1, int size = 10)
+    public async Task<PagedResultDto<TenantDto>> GetAllTenantsAsync(int page = 1, int size = 10)
     {
-        if (page < 1) page = 1;
-        if (size < 1) size = 10;
+        if (page < 1)
+            page = 1;
+        if (size < 1)
+            size = 10;
 
         var query = _baseDbContext.Tenants.AsNoTracking();
 
@@ -101,7 +113,7 @@ public class TenantService : ITenantService
                 Name = t.Name,
                 ISIL = t.ISIL,
                 Description = t.Description,
-                ImageUrl = t.ImageUrl
+                ImageUrl = t.ImageUrl,
             })
             .ToListAsync();
 
@@ -111,11 +123,14 @@ public class TenantService : ITenantService
             TotalItems = totalItems,
             TotalPages = (int)Math.Ceiling(totalItems / (double)size),
             CurrentPage = page,
-            PageSize = size
+            PageSize = size,
         };
     }
-    
-    private async Task CreateDefaultDirectorUserAsync(string tenantId, string tenantConnectionString)
+
+    private async Task CreateDefaultDirectorUserAsync(
+        string tenantId,
+        string tenantConnectionString
+    )
     {
         using var scope = _serviceProvider.CreateScope();
         var tenantService = scope.ServiceProvider.GetRequiredService<ICurrentTenantService>();
@@ -127,13 +142,15 @@ public class TenantService : ITenantService
         {
             UserName = "director",
             TenantId = tenantId,
-            PermissionLevel = null
+            PermissionLevel = null,
         };
 
         var result = await userManager.CreateAsync(defaultDirector, "director123");
         if (!result.Succeeded)
         {
-            throw new InvalidOperationException($"Error al crear el usuario director por defecto: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            throw new InvalidOperationException(
+                $"Error al crear el usuario director por defecto: {string.Join(", ", result.Errors.Select(e => e.Description))}"
+            );
         }
 
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();

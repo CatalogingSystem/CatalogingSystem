@@ -34,9 +34,17 @@ public class AuditController : ControllerBase
         [FromQuery] string? username = null,
         [FromQuery] long? expediente = null,
         [FromQuery] int page = 1,
-        [FromQuery] int size = 10)
+        [FromQuery] int size = 10
+    )
     {
-        var result = await _auditLogService.GetAuditLogsAsync(tableName, operation, username, expediente, page, size);
+        var result = await _auditLogService.GetAuditLogsAsync(
+            tableName,
+            operation,
+            username,
+            expediente,
+            page,
+            size
+        );
         return Ok(result);
     }
 }

@@ -19,14 +19,18 @@ public class ArchivoAdministrativoController : ControllerBase
 
     [HttpGet]
     [Authorize(Policy = "ArchivoAdminRead")]
-    public async Task<ActionResult<IEnumerable<ArchivoAdministrativoDto>>> GetArchivosAdministrativos()
+    public async Task<
+        ActionResult<IEnumerable<ArchivoAdministrativoDto>>
+    > GetArchivosAdministrativos()
     {
         return Ok(await _service.GetArchivosAdministrativos());
     }
 
     [HttpGet("{expediente:long}")]
     [Authorize(Policy = "ArchivoAdminRead")]
-    public async Task<ActionResult<ArchivoAdministrativoDto>> GetArchivoAdministrativo(long expediente)
+    public async Task<ActionResult<ArchivoAdministrativoDto>> GetArchivoAdministrativo(
+        long expediente
+    )
     {
         var archivo = await _service.GetArchivoAdministrativo(expediente);
         return archivo == null ? NotFound() : Ok(archivo);
@@ -34,12 +38,18 @@ public class ArchivoAdministrativoController : ControllerBase
 
     [HttpPost]
     [Authorize(Policy = "ArchivoAdminWrite")]
-    public async Task<ActionResult<ArchivoAdministrativo>> PostArchivoAdministrativo(ArchivoAdministrativoDto dto)
+    public async Task<ActionResult<ArchivoAdministrativo>> PostArchivoAdministrativo(
+        ArchivoAdministrativoDto dto
+    )
     {
         try
         {
             var archivo = await _service.CreateArchivoAdministrativo(dto);
-            return CreatedAtAction(nameof(GetArchivoAdministrativo), new { expediente = archivo.expediente }, archivo);
+            return CreatedAtAction(
+                nameof(GetArchivoAdministrativo),
+                new { expediente = archivo.expediente },
+                archivo
+            );
         }
         catch (InvalidOperationException ex)
         {
@@ -49,7 +59,10 @@ public class ArchivoAdministrativoController : ControllerBase
 
     [HttpPut("{expediente:long}")]
     [Authorize(Policy = "ArchivoAdminWrite")]
-    public async Task<IActionResult> PutArchivoAdministrativo(long expediente, ArchivoAdministrativoDto dto)
+    public async Task<IActionResult> PutArchivoAdministrativo(
+        long expediente,
+        ArchivoAdministrativoDto dto
+    )
     {
         var success = await _service.UpdateArchivoAdministrativo(expediente, dto);
         return success ? NoContent() : NotFound();
