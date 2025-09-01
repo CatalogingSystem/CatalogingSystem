@@ -1,4 +1,5 @@
 namespace CatalogingSystem.Core.Enums;
+
 using System.Text.Json.Serialization;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -7,7 +8,7 @@ public enum TipoDocumentoOrigen
     PorDecomiso,
     Compra,
     Dacion,
-    Excavacion, 
+    Excavacion,
     Legado,
     Donacion,
     OrdenacionYReordenacion,
@@ -25,5 +26,5 @@ public enum TipoDocumentoOrigen
     Exposicion,
     Conservacion,
     DepositoJudicial,
-    DepositoPrevioAAdquisicion
+    DepositoPrevioAAdquisicion,
 }

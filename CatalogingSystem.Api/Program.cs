@@ -204,6 +204,7 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<CatalogItemDtoValidator>();
 builder.Services.AddScoped<ITenantCustomizationService, TenantCustomizationService>();
+builder.Services.AddScoped<IMetricsService, MetricsService>();
 
 var app = builder.Build();
 

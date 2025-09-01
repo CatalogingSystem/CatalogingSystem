@@ -16,5 +16,5 @@ public enum PeriodEnum
     FirstQuarterOfCentury,
     SecondQuarterOfCentury,
     ThirdQuarterOfCentury,
-    LastQuarterOfCentury
+    LastQuarterOfCentury,
 }

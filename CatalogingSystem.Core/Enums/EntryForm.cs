@@ -26,5 +26,5 @@ public enum EntryForm
     PublicOwnershipDeposit,
     ThirdPartyDeposit,
     JudicialDeposit,
-    DepositPriorToAcquisition
+    DepositPriorToAcquisition,
 }
