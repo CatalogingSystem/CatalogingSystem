@@ -35,11 +35,6 @@ var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key");
 var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer");
 var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience");
 
-// Debug output to verify values
-Console.WriteLine($"Jwt__Key: {jwtKey}");
-Console.WriteLine($"Jwt__Issuer: {jwtIssuer}");
-Console.WriteLine($"Jwt__Audience: {jwtAudience}");
-
 if (
     string.IsNullOrEmpty(jwtKey)
     || string.IsNullOrEmpty(jwtIssuer)
@@ -57,7 +52,15 @@ builder.Services.AddCors(options =>
         name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
+            policy
+                .WithOrigins(
+                    "http://localhost:5173",
+                    "http://localhost:3001",
+                    "http://localhost:3000"
+                )
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
         }
     );
 });
@@ -214,11 +217,9 @@ await ProgramHelper.EnsureSuperDirectorExists(app.Services);
 
 app.UseCors(MyAllowSpecificOrigins);
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Enable Swagger in all environments for now
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
