@@ -15,5 +15,5 @@ public enum MovementType
     PermanentExhibitionSiteChange,
     Relocation,
     Loan,
-    Disposal
+    Disposal,
 }

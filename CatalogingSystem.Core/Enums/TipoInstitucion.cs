@@ -1,15 +1,16 @@
 namespace CatalogingSystem.Core.Enums;
+
 using System.Text.Json.Serialization;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum TipoInstitucion
 {
-    UMRPSFXCH, 
+    UMRPSFXCH,
     IglesiaDeChuquisaca,
     InstitucionPublica,
     InstitucionPrivada,
     ColeccionPublica,
     ColeccionPrivada,
     PersonaJuridica,
-    PersonaNatural
+    PersonaNatural,
 }
