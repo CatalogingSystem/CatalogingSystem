@@ -56,7 +56,8 @@ builder.Services.AddCors(options =>
                 .WithOrigins(
                     "http://localhost:5173",
                     "http://localhost:3001",
-                    "http://localhost:3000"
+                    "http://localhost:3000",
+                    "http://20.169.89.143"
                 )
                 .AllowAnyMethod()
                 .AllowAnyHeader()
@@ -210,6 +211,22 @@ builder.Services.AddScoped<ITenantCustomizationService, TenantCustomizationServi
 builder.Services.AddScoped<IMetricsService, MetricsService>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<BaseDbContext>();
+        dbContext.Database.Migrate();
+        Console.WriteLine("BaseDbContext migrations applied successfully.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(
+            $"An error occurred while applying BaseDbContext migrations: {ex.Message}"
+        );
+    }
+}
 
 // Apply migrations for all existing tenants
 await ApplyTenantMigrations.ApplyAllTenantMigrationsAsync(app.Services);
