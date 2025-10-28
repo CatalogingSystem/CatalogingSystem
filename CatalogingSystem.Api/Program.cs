@@ -35,11 +35,6 @@ var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key");
 var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer");
 var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience");
 
-// Debug output to verify values
-Console.WriteLine($"Jwt__Key: {jwtKey}");
-Console.WriteLine($"Jwt__Issuer: {jwtIssuer}");
-Console.WriteLine($"Jwt__Audience: {jwtAudience}");
-
 if (
     string.IsNullOrEmpty(jwtKey)
     || string.IsNullOrEmpty(jwtIssuer)
@@ -57,7 +52,16 @@ builder.Services.AddCors(options =>
         name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
+            policy
+                .WithOrigins(
+                    "http://localhost:5173",
+                    "http://localhost:3001",
+                    "http://localhost:3000",
+                    "http://20.169.89.143"
+                )
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
         }
     );
 });
@@ -208,17 +212,31 @@ builder.Services.AddScoped<IMetricsService, MetricsService>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<BaseDbContext>();
+        dbContext.Database.Migrate();
+        Console.WriteLine("BaseDbContext migrations applied successfully.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(
+            $"An error occurred while applying BaseDbContext migrations: {ex.Message}"
+        );
+    }
+}
+
 // Apply migrations for all existing tenants
 await ApplyTenantMigrations.ApplyAllTenantMigrationsAsync(app.Services);
 await ProgramHelper.EnsureSuperDirectorExists(app.Services);
 
 app.UseCors(MyAllowSpecificOrigins);
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Enable Swagger in all environments for now
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
