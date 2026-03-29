@@ -179,8 +179,9 @@ builder.Services.AddAutoMapper(
     typeof(DescriptionClassificationProfile),
     typeof(TenantCustomizationProfile)
 );
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString =
+    Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BaseDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
 
@@ -207,6 +208,15 @@ builder.Services.AddScoped<ITenantCustomizationService, TenantCustomizationServi
 builder.Services.AddScoped<IMetricsService, MetricsService>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var baseContext = scope.ServiceProvider.GetRequiredService<BaseDbContext>();
+    baseContext.Database.Migrate();
+
+    var appContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    appContext.Database.Migrate();
+}
 
 // Apply migrations for all existing tenants
 await ApplyTenantMigrations.ApplyAllTenantMigrationsAsync(app.Services);
